@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3DGS 前端分享讲稿</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* 配色方案: 赛博朋克霓虹 */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #001F3D;
+            --bg-card: #1a1a2e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-green: #00ff00;
+            --accent-blue: #00ffff;
+            --accent-purple: #ff00ff;
+            --accent-orange: #ff6b00;
+            --accent-cyan: #00ffff;
+            --accent-pink: #ff3d94;
+            --border-color: #2a2a3e;
+            --code-bg: #0d0d0d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(255, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 0%, rgba(255, 61, 148, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            border: 1px solid var(--accent-purple);
+            border-radius: 999px;
+            color: var(--accent-purple);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.2s;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.4s;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.6s;
+        }
+
+        .hero-arrow {
+            margin-top: 3rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.8s;
+        }
+
+        .hero-arrow span {
+            display: block;
+            font-size: 2rem;
+            color: var(--text-secondary);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        /* Entry Animations */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes rotateIn {
+            from { opacity: 0; transform: rotate(-10deg) scale(0.9); }
+            to { opacity: 1; transform: rotate(0) scale(1); }
+        }
+
+        /* Continuous Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.6); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Animation Classes */
+        .anim-slideInLeft { animation: slideInLeft 0.6s ease forwards; }
+        .anim-slideInRight { animation: slideInRight 0.6s ease forwards; }
+        .anim-scaleIn { animation: scaleIn 0.6s ease forwards; }
+        .anim-rotateIn { animation: rotateIn 0.6s ease forwards; }
+        .anim-float { animation: float 3s ease-in-out infinite; }
+        .anim-pulse { animation: pulse 2s ease-in-out infinite; }
+        .anim-glow { animation: glow 2s ease-in-out infinite; }
+        .anim-spin { animation: spin 2s linear infinite; }
+        .anim-shake { animation: shake 0.5s ease; }
+
+        /* Stagger delays */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Sections */
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section.center {
+            text-align: center;
+        }
+
+        .section.center .section-label,
+        .section.center h2,
+        .section.center p {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .section h2 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+            max-width: 800px;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: transform 0.3s, border-color 0.3s;
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Icon Styles */
+        .icon-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .icon-wrapper.circle {
+            border-radius: 50%;
+            padding: 1rem;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .icon-wrapper.square {
+            border-radius: 8px;
+            padding: 1rem;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        .icon-sm { width: 1rem; height: 1rem; }
+        .icon-md { width: 1.5rem; height: 1.5rem; }
+        .icon-lg { width: 2rem; height: 2rem; }
+        .icon-xl { width: 3rem; height: 3rem; }
+
+        .icon-blue { color: var(--accent-blue); }
+        .icon-purple { color: var(--accent-purple); }
+        .icon-green { color: var(--accent-green); }
+        .icon-orange { color: var(--accent-orange); }
+        .icon-cyan { color: var(--accent-cyan); }
+        .icon-pink { color: var(--accent-pink); }
+
+        .icon-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-icon {
+            width: 2rem;
+            height: 2rem;
+            color: var(--accent-blue);
+        }
+
+        .icon-interactive {
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .icon-interactive:hover {
+            transform: scale(1.1);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Code block */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            white-space: pre;
+        }
+
+        .code-block .comment { color: #6a737d; }
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .func { color: #d2a8ff; }
+        .code-block .symbol { color: #79c0ff; }
+
+        /* Divider */
+        .divider {
+            max-width: 1100px;
+            margin: 0 auto;
+            border: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-badge">3D Gaussian Splatting · 前端分享</div>
+    <h1>让 <span class="highlight">3DGS</span> 真正落地到 Web 前端</h1>
+    <p class="hero-sub">
+        25 分钟，从概念到工程实践：聚焦体积、加载、交互与移动端兜底，为熟悉 React/Vite 与 WebGL/Three.js 的前端同学提供一套可直接复用的 3DGS 上线方案。
+    </p>
+    <div class="hero-arrow"><span>↓</span></div>
+</section>
+
+<!-- Content Sections -->
+<section class="section center" id="section-intro">
+    <span class="section-label" style="background: rgba(236,72,153,0.15); color: var(--accent-pink);">分享概览</span>
+    <h2>0. 分享目标与受众定位（约 1 分钟）</h2>
+    <p>这次分享的核心，是讲清楚 3DGS 在 Web 前端的工程落地方法，并基于可运行示例完成一场 25 分钟左右的现场演示。</p>
+    <p>受众是假定已经熟悉 React / Vite，并对 WebGL / Three.js / 游戏引擎有基础认知的前端同学。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">🎯</div>
+            <h3>分享定位</h3>
+            <p>这不是炫技 Demo，而是一套可上线、可复用的工程方案，重点在于“如何真正交付”。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">🧩</div>
+            <h3>关注的前端问题</h3>
+            <p>体积、加载速度、交互体验、稳定性，以及移动端的兜底策略，都是你需要回答的问题。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-3">
+            <div class="card-icon">📦</div>
+            <h3>可复用模板</h3>
+            <p>最终输出是一套已经落地到示例项目中的模版代码，可以在自己业务中直接套用与扩展。</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-what-is-3dgs">
+    <span class="section-label" style="background: rgba(59,130,246,0.15); color: var(--accent-cyan);">核心概念</span>
+    <h2>1. 一句话理解 3DGS（前端视角，约 2 分钟）</h2>
+    <p>从前端工程师的视角，可以把 3D Gaussian Splatting 理解为：大量带方向、尺度、颜色与透明度的高斯点，在 GPU 上完成投影与融合，而不是传统的三角网格渲染。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">🧱</div>
+            <h3>1. 数据形态不同</h3>
+            <p>它不是 glTF mesh 的那套流程，而是一团“高斯点云”；因此资产格式、加载方式与工具链都会完全不同。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">⚙️</div>
+            <h3>2. 性能瓶颈不同</h3>
+            <p>常见瓶颈集中在传输体积、解码成本、显存占用以及 fragment 着色压力，而非传统的顶点数。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-3">
+            <div class="card-icon">🛠️</div>
+            <h3>3. 工程解法不同</h3>
+            <p>格式选择与渲染链路是成败关键：你需要针对 3DGS 的数据与渲染特性，重新设计交付路径与前端工程方案。</p>
+        </div>
+    </div>
+    <p>对于听众而言，只要牢牢抓住这三点，就能快速在脑中形成“3DGS 与传统 3D 渲染有什么本质区别”的对比框架。</p>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-format">
+    <span class="section-label" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">格式选择</span>
+    <h2>2. 格式选择：PLY vs SOG（约 3 分钟）</h2>
+    <p>在工程落地时，首先要讲清楚资产格式的选择——这会直接决定首屏体积、加载耗时以及移动端体验。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">📘</div>
+            <h3>2.1 PLY：研发友好，交付偏重</h3>
+            <p>优点：格式通用、生态成熟、训练产物常见，方便研发阶段不断迭代与对比实验。</p>
+            <p>缺点：体积普遍偏大，在 Web 端首屏加载与移动端网络/存储成本都非常敏感。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-2">
+            <div class="card-icon">🧪</div>
+            <h3>2.2 SOG：为 Web 交付而生</h3>
+            <p>SOG 是面向 Web 的压缩容器，在同等场景下，对比 PLY 通常能获得更优压缩比，显著降低传输与解码压力。</p>
+            <p>PlayCanvas 在引擎、工具链与 React 封装上提供了一致支持，降低了从训练产物到前端交付的落地成本。</p>
+        </div>
+    </div>
+
+    <p style="margin-top:2rem;">讲稿希望你在这里给出清晰结论：</p>
+    <div class="card anim-scaleIn stagger-3">
+        <div class="card-icon">✅</div>
+        <h3>结论：研发阶段可保留 PLY，上线交付优先 SOG</h3>
+        <p>团队可以在训练与调试阶段继续使用 PLY，等到接近上线时统一转换为 SOG，保障体验与带宽成本。</p>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-why-playcanvas">
+    <span class="section-label" style="background: rgba(168,85,247,0.15); color: var(--accent-purple);">生态选择</span>
+    <h2>3. 为什么选 PlayCanvas 生态（约 2 分钟）</h2>
+    <p>从“能不能跑起来”到“能不能交付上线”，PlayCanvas 生态在 3DGS 场景下提供了一条比较完整的工程链路。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">🧩</div>
+            <h3>1. 引擎原生支持 GSplat</h3>
+            <p>GSplat 作为组件存在于引擎中，不需要你手写底层渲染管线，直接通过组件 API 即可完成挂载与控制。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">⚛️</div>
+            <h3>2. `@playcanvas/react` 的 React 化封装</h3>
+            <p>Application / Entity / Components 可以 React 化封装，用你熟悉的方式组织 UI 与 3D 逻辑，更容易融入现有前端工程体系。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-3">
+            <div class="card-icon">🔧</div>
+            <h3>3. 完整工具链：`@playcanvas/splat-transform`</h3>
+            <p>官方工具支持 PLY → SOG 的一键转换，让 3D 团队与前端团队之间的资产流转更加顺滑，可持续迭代。</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-demo">
+    <span class="section-label" style="background: rgba(34,197,94,0.15); color: var(--accent-green);">演示主段</span>
+    <h2>4. 可运行示例（演示主段，约 8 分钟）</h2>
+    <p>这一段是分享的“高潮部分”：通过完整可运行示例，把前面讲过的格式、引擎与工程策略全部串在一起。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">📂</div>
+            <h3>4.1 示例项目位置</h3>
+            <p>示例目录：</p>
+            <p><code>/Users/jerichoding/Desktop/sharing/3DGS/example</code></p>
+            <div class="code-block">
+<span class="comment"># 启动示例项目</span>
+<span class="keyword">cd</span> /Users/jerichoding/Desktop/sharing/3DGS/example
+<span class="keyword">npm</span> install
+<span class="keyword">npm</span> run dev
+            </div>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">🎥</div>
+            <h3>4.2 建议的现场演示节奏</h3>
+            <p>1）先打开页面，展示加载 HUD 与进度条，让听众感受到“真实上线场景”的加载体验。</p>
+            <p>2）模型加载完成后，演示 orbit / pan / zoom 交互，让大家知道交互是“默认给好的”。</p>
+            <p>3）解释为什么默认设置 <code>antialias: false</code>，强调这是在控制 fragment 压力。</p>
+            <p>4）指出 <code>highQualitySH</code> 是质量/性能开关，移动端可以默认关闭以保性能。</p>
+            <p>5）示范如何把默认 URL 替换为本地 <code>public/splats/*.sog</code> 资源，强调“接入自己的模型很简单”。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-3">
+            <div class="card-icon">🗂️</div>
+            <h3>4.3 代码映射：讲哪里看哪里</h3>
+            <p>你可以用“目标 → 文件 → 讲解重点”的方式引导听众：</p>
+            <p>· 示例入口：<code>src/App.tsx</code> —— 默认资源 URL 与 Viewer 参数注入。</p>
+            <p>· 核心渲染组件：<code>src/components/SplatViewer.tsx</code> —— <code>Application</code>、<code>useSplat</code>、进度订阅、错误兜底。</p>
+            <p>· 交互与 HUD 视觉：<code>src/components/SplatViewer.css</code> —— 加载层与提示层的视觉与动效。</p>
+            <p>· 脚本类型声明：<code>src/types/playcanvas-scripts.d.ts</code> —— <code>camera-controls.mjs</code> 的 TS 兼容处理。</p>
+            <p>· 运行说明：<code>README.md</code> —— 启动方式、资源替换与转换命令汇总。</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-engineering">
+    <span class="section-label" style="background: rgba(249,115,22,0.15); color: var(--accent-orange);">工程落地</span>
+    <h2>5. 前端工程落地关键点（约 4 分钟）</h2>
+    <p>从 Demo 到上线，核心是三件事：资源交付策略、加载体验设计与性能开关管理。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">🚚</div>
+            <h3>5.1 资源交付策略</h3>
+            <p>· 使用 SOG + CDN 长缓存，并配合版本号与 <code>immutable</code> 策略，降低反复拉取的成本。</p>
+            <p>· 按场景拆包，避免首屏一次性灌入多个大模型。</p>
+            <p>· 首屏优先出业务 UI（海报 / 骨架屏），然后再加载 splat，让用户“看见东西”再等 3D。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">📶</div>
+            <h3>5.2 加载体验（必须做）</h3>
+            <p>· 使用资产 hook 的 <code>subscribe</code> 做进度订阅，让进度条是“真进度”，而不是假动画。</p>
+            <p>· 错误态必须给可执行提示，例如 URL 是否错误、CORS 配置是否有问题、资源是否可达。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-3">
+            <div class="card-icon">🧯</div>
+            <h3>5.3 性能开关（必须讲）</h3>
+            <p>· splat 场景优先关闭抗锯齿，减轻 fragment 压力，换取更稳的帧率。</p>
+            <p>· 使用 <code>highQualitySH</code> 作为设备分档开关，移动端优先关闭，PC 高端机型可以开启以提升品质。</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-extend">
+    <span class="section-label" style="background: rgba(6,182,212,0.15); color: var(--accent-cyan);">进一步扩展</span>
+    <h2>6. 可扩展方案（约 2 分钟）</h2>
+    <p>当业务走到“多模型同屏 / 超大场景”的阶段，你可以在现有方案上继续向下挖。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">🌌</div>
+            <h3>统一排序与渲染：`unified`</h3>
+            <p>通过 <code>unified</code> 能够对多 splat 进行统一排序与渲染管理，避免多实例之间相互“打架”。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">📊</div>
+            <h3>预算与 LOD：`splatBudget` / `lodDistances`</h3>
+            <p>用 <code>splatBudget</code> 与 <code>lodDistances</code> 控制每一帧的 splat 数量与 LOD 策略，在画质与性能之间取得平衡。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-3">
+            <div class="card-icon">🧱</div>
+            <h3>更大规模：流式 LOD 资产组织</h3>
+            <p>对于超大场景，可以进一步结合流式 LOD 资产管理，将场景按区域 / 距离拆分成可流式加载的块。</p>
+            <p>这些能力都可以沿着 GSplat 组件与官方 API 的路线持续深入，逐步演进到更复杂的项目形态。</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-checklist">
+    <span class="section-label" style="background: rgba(168,85,247,0.15); color: var(--accent-purple);">上线检查</span>
+    <h2>7. 上线前检查清单（约 2 分钟）</h2>
+    <p>在真正上线前，可以按这份清单做一次终检，确保没有遗漏关键环节。</p>
+
+    <div class="card-grid">
+        <div class="card anim-scaleIn stagger-1">
+            <div class="card-icon">✅</div>
+            <h3>交付与稳定性</h3>
+            <p>· 交付格式是否已统一为 SOG。</p>
+            <p>· 是否具备“加载中 / 失败 / fallback”完整状态机。</p>
+            <p>· 是否验证交互一致性（鼠标 + 触屏）。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">🚦</div>
+            <h3>性能与兜底策略</h3>
+            <p>· 是否完成性能兜底：<code>antialias: false</code>、移动端 <code>highQualitySH: false</code>。</p>
+            <p>· 是否根据设备档位给出合理的配置切换。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-3">
+            <div class="card-icon">📈</div>
+            <h3>监控与可观测性</h3>
+            <p>· 是否有监控：首屏耗时、下载耗时、解码耗时、FPS 等关键指标。</p>
+            <p>· 是否为后续优化预留了埋点与日志上报能力。</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-commands">
+    <span class="section-label" style="background: rgba(34,197,94,0.15); color: var(--accent-green);">命令速查</span>
+    <h2>8. 附录：命令速查（讲解时可口播）</h2>
+    <p>最后附上一页命令速查表，方便你在分享时边操作边口播。</p>
+
+    <h3 style="margin-top:1.5rem;">初始化同类项目</h3>
+    <div class="code-block">
+<span class="comment"># 创建 React + TypeScript 项目</span>
+<span class="keyword">npm</span> create vite@latest gsplat-web -- --template react-ts
+<span class="keyword">cd</span> gsplat-web
+<span class="comment"># 安装 PlayCanvas 与 React 集成</span>
+<span class="keyword">npm</span> install @playcanvas/react playcanvas
+    </div>
+
+    <h3 style="margin-top:1.5rem;">PLY 转 SOG</h3>
+    <div class="code-block">
+<span class="comment"># 全局安装转换工具</span>
+<span class="keyword">npm</span> install -g @playcanvas/splat-transform
+<span class="comment"># 执行 PLY → SOG 转换</span>
+<span class="keyword">splat-transform</span> input.ply output.sog
+    </div>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-references">
+    <span class="section-label" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">参考资料</span>
+    <h2>9. 参考资料（末页）</h2>
+    <p>最后一页可以作为“附录 / 进一步阅读”留给听众，方便他们在会后继续深入。</p>
+
+    <div class="card-grid">
+        <div class="card anim-slideInLeft stagger-1">
+            <div class="card-icon">📚</div>
+            <h3>PlayCanvas React 集成</h3>
+            <p><code>@playcanvas/react</code>：React 集成方式与安装命令。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-2">
+            <div class="card-icon">🚀</div>
+            <h3>入门与性能建议</h3>
+            <p>用 React 构建第一个 splat 应用，包含性能建议与 <code>camera-controls</code> 的实践。</p>
+        </div>
+        <div class="card anim-scaleIn stagger-3">
+            <div class="card-icon">🧾</div>
+            <h3>SOG 与 资产 hooks 文档</h3>
+            <p>SOG 格式与压缩说明，以及 GSplat / <code>useSplat</code> / 资产 hooks 等官方文档。</p>
+        </div>
+        <div class="card anim-slideInRight stagger-4">
+            <div class="card-icon">🧪</div>
+            <h3>Engine API 示例</h3>
+            <p>包含 <code>toy-cat.sog</code> 等示例资源的 Engine API 教程，可以帮助你快速做出自己的实验场景。</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- Footer -->
+<footer class="footer">
+    <p>3DGS 前端分享讲稿 · 赛博朋克风格文档页面</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+// Initialize Lucide icons
+if (window.lucide) {
+    lucide.createIcons();
+}
+</script>
+
+</body>
+</html>
