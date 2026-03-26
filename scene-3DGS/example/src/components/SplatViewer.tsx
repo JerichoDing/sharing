@@ -12,6 +12,12 @@ import {
 } from 'playcanvas';
 import { CameraControls } from 'playcanvas/scripts/esm/camera-controls.mjs';
 
+import {
+  advanceAutoOrbit,
+  createAutoOrbitState,
+  shouldEnableAutoOrbitByDefault,
+  shouldRunAutoOrbit,
+} from './splatAutoOrbit';
 import './SplatViewer.css';
 
 type Vec3 = [number, number, number];
@@ -37,6 +43,8 @@ export type SplatViewerProps = {
   initialCameraPosition?: Vec3;
   initialCameraDirection?: Vec3;
   splatTransform?: SplatTransform;
+  autoOrbit?: boolean;
+  autoOrbitSpeed?: number;
   highQualitySH?: boolean;
   hintText?: string;
   title?: string;
@@ -92,6 +100,8 @@ type SplatSceneProps = {
   initialCameraPosition: Vec3;
   initialCameraDirection?: Vec3;
   transform: Required<SplatTransform>;
+  autoOrbitEnabled: boolean;
+  autoOrbitSpeed: number;
   highQualitySH: boolean;
   onStatusChange: (status: SceneStatus) => void;
   onCameraUpdate?: (info: CameraInfo) => void;
@@ -142,7 +152,7 @@ function CameraInfoReporter({ onCameraUpdate }: { onCameraUpdate: (info: CameraI
   useAppEvent(
     'update',
     useCallback(
-      (_dt: number) => {
+      () => {
         if (!app?.root || !onCameraUpdate) return;
         const cameraEntity = app.root.findByName('Camera');
         if (!cameraEntity) return;
@@ -163,11 +173,76 @@ function CameraInfoReporter({ onCameraUpdate }: { onCameraUpdate: (info: CameraI
   return null;
 }
 
+function AutoOrbitController({
+  enabled,
+  target,
+  angularSpeed,
+}: {
+  enabled: boolean;
+  target: Vec3;
+  angularSpeed: number;
+}) {
+  const app = useApp();
+  const orbitStateRef = useRef<ReturnType<typeof createAutoOrbitState>>(null);
+
+  useEffect(() => {
+    orbitStateRef.current = null;
+  }, [enabled, target]);
+
+  useAppEvent(
+    'update',
+    useCallback(
+      (dt: number) => {
+        if (!app?.root) return;
+        if (!enabled) {
+          orbitStateRef.current = null;
+          return;
+        }
+
+        const cameraEntity = app.root.findByName('Camera');
+        if (!cameraEntity) return;
+
+        if (!orbitStateRef.current) {
+          const pos = cameraEntity.getPosition();
+          orbitStateRef.current = createAutoOrbitState([pos.x, pos.y, pos.z], target);
+        }
+
+        const orbitState = orbitStateRef.current;
+
+        if (
+          !shouldRunAutoOrbit({
+            autoOrbit: enabled,
+            loading: false,
+            hasAsset: true,
+            userInteracted: false,
+            orbitState,
+          })
+        ) {
+          return;
+        }
+
+        if (!orbitState) return;
+
+        const result = advanceAutoOrbit(orbitState, dt, angularSpeed);
+        orbitStateRef.current = result.state;
+
+        cameraEntity.setPosition(result.position[0], result.position[1], result.position[2]);
+        cameraEntity.lookAt(target[0], target[1], target[2]);
+      },
+      [app, angularSpeed, enabled, target],
+    ),
+  );
+
+  return null;
+}
+
 function SplatScene({
   src,
   initialCameraPosition,
   initialCameraDirection,
   transform,
+  autoOrbitEnabled,
+  autoOrbitSpeed,
   highQualitySH,
   onStatusChange,
   onCameraUpdate,
@@ -203,6 +278,11 @@ function SplatScene({
       <CameraInitialPose
         initialCameraPosition={initialCameraPosition}
         initialCameraDirection={initialCameraDirection}
+      />
+      <AutoOrbitController
+        enabled={autoOrbitEnabled}
+        target={transform.position}
+        angularSpeed={autoOrbitSpeed}
       />
 
       <Entity
@@ -244,6 +324,8 @@ export function SplatViewer({
   initialCameraPosition = [10, -3000, 2500],
   initialCameraDirection,
   splatTransform,
+  autoOrbit,
+  autoOrbitSpeed = 0.35,
   highQualitySH = false,
   hintText = '左键旋转 / 右键平移 / 滚轮缩放',
   title = '3DGS Web Viewer',
@@ -252,6 +334,7 @@ export function SplatViewer({
   operationGroups = [],
   onCameraUpdate,
 }: SplatViewerProps) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const [sceneStatus, setSceneStatus] = useState<SceneStatus>({
     loading: true,
     error: null,
@@ -260,7 +343,10 @@ export function SplatViewer({
     empty: false,
   });
   const [showHelp, setShowHelp] = useState(true);
-  const [cameraInfo, setCameraInfo] = useState<CameraInfo | null>(null);
+  const resolvedAutoOrbit = autoOrbit ?? shouldEnableAutoOrbitByDefault(src);
+  const autoOrbitSessionKey = `${src}:${resolvedAutoOrbit ? 'auto' : 'manual'}`;
+  const [interactedSessionKey, setInteractedSessionKey] = useState<string | null>(null);
+  const userInteracted = interactedSessionKey === autoOrbitSessionKey;
 
   useEffect(() => {
     if (!sceneStatus.loading && sceneStatus.hasAsset) {
@@ -271,6 +357,51 @@ export function SplatViewer({
     return undefined;
   }, [sceneStatus.hasAsset, sceneStatus.loading]);
 
+  useEffect(() => {
+    if (!resolvedAutoOrbit || !sceneStatus.hasAsset || sceneStatus.loading) {
+      return undefined;
+    }
+
+    const root = rootRef.current;
+    if (!root) return undefined;
+
+    const stopAutoOrbit = () => setInteractedSessionKey(autoOrbitSessionKey);
+    const stopOnKey = (event: KeyboardEvent) => {
+      if (
+        [
+          'KeyW',
+          'KeyA',
+          'KeyS',
+          'KeyD',
+          'KeyQ',
+          'KeyE',
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          'ShiftLeft',
+          'ShiftRight',
+          'ControlLeft',
+          'ControlRight',
+        ].includes(event.code)
+      ) {
+        stopAutoOrbit();
+      }
+    };
+
+    root.addEventListener('pointerdown', stopAutoOrbit, { passive: true });
+    root.addEventListener('wheel', stopAutoOrbit, { passive: true });
+    root.addEventListener('touchstart', stopAutoOrbit, { passive: true });
+    window.addEventListener('keydown', stopOnKey);
+
+    return () => {
+      root.removeEventListener('pointerdown', stopAutoOrbit);
+      root.removeEventListener('wheel', stopAutoOrbit);
+      root.removeEventListener('touchstart', stopAutoOrbit);
+      window.removeEventListener('keydown', stopOnKey);
+    };
+  }, [autoOrbitSessionKey, resolvedAutoOrbit, sceneStatus.hasAsset, sceneStatus.loading]);
+
   const transform = useMemo(() => {
     return {
       position: splatTransform?.position ?? ([0, 0, 0] as Vec3),
@@ -279,11 +410,14 @@ export function SplatViewer({
     };
   }, [splatTransform]);
 
+  const autoOrbitEnabled =
+    resolvedAutoOrbit && !userInteracted && sceneStatus.hasAsset && !sceneStatus.loading;
+
 
 
 
   return (
-    <div className="splat-root">
+    <div className="splat-root" ref={rootRef}>
       <Application
         graphicsDeviceOptions={{ antialias: false }}
         fillMode={FILLMODE_FILL_WINDOW}
@@ -295,12 +429,11 @@ export function SplatViewer({
           initialCameraPosition={initialCameraPosition}
           initialCameraDirection={initialCameraDirection}
           transform={transform}
+          autoOrbitEnabled={autoOrbitEnabled}
+          autoOrbitSpeed={autoOrbitSpeed}
           highQualitySH={highQualitySH}
           onStatusChange={setSceneStatus}
-          onCameraUpdate={(info) => {
-            setCameraInfo(info);
-            onCameraUpdate?.(info);
-          }}
+          onCameraUpdate={onCameraUpdate}
         />
       </Application>
 
