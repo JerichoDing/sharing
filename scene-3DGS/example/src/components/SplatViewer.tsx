@@ -173,6 +173,30 @@ function CameraInfoReporter({ onCameraUpdate }: { onCameraUpdate: (info: CameraI
   return null;
 }
 
+function SceneBackgroundController() {
+  const app = useApp();
+  const appliedRef = useRef(false);
+
+  useAppEvent(
+    'update',
+    useCallback(() => {
+      if (appliedRef.current || !app?.root) return;
+
+      const cameraEntity = app.root.findByName('Camera') as
+        | { camera?: { clearColor: { set: (...args: number[]) => void } } }
+        | null;
+      const camera = cameraEntity?.camera;
+      if (!camera) return;
+
+      // Use a light clear color so the model background is not black.
+      camera.clearColor.set(0, 0, 0, 1);
+      appliedRef.current = true;
+    }, [app]),
+  );
+
+  return null;
+}
+
 function AutoOrbitController({
   enabled,
   target,
@@ -279,6 +303,7 @@ function SplatScene({
         initialCameraPosition={initialCameraPosition}
         initialCameraDirection={initialCameraDirection}
       />
+      <SceneBackgroundController />
       <AutoOrbitController
         enabled={autoOrbitEnabled}
         target={transform.position}
