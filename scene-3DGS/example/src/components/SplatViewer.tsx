@@ -434,6 +434,7 @@ export function SplatViewer({
           highQualitySH={highQualitySH}
           onStatusChange={setSceneStatus}
           onCameraUpdate={onCameraUpdate}
+        
         />
       </Application>
 
@@ -443,42 +444,11 @@ export function SplatViewer({
           <div className="hero-card">
             <div className="hero-title">{title}</div>
             <div className="hero-subtitle">{subtitle}</div>
-            {sceneInfo.length > 0 ? (
-              <div className="hero-meta">
-                {sceneInfo.map((item) => (
-                  <div className="meta-item" key={item.label}>
-                    <span className="meta-label">{item.label}</span>
-                    <span className="meta-value">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-          <div className="src" title={src}>
-            {src}
           </div>
         </div>
 
       </div>
 
-      {showHelp && !sceneStatus.error ? (
-        <aside className="guide-panel">
-          <div className="guide-kicker">操作提示</div>
-          <div className="guide-title">建议先熟悉相机控制，再开始演示。</div>
-          {operationGroups.map((group) => (
-            <section className="guide-group" key={group.title}>
-              <div className="guide-group-title">{group.title}</div>
-              <ul className="guide-list">
-                {group.items.map((item) => (
-                  <li className="guide-item" key={item}>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </aside>
-      ) : null}
 
       {(sceneStatus.loading || sceneStatus.error || sceneStatus.empty) && (
         <div className="overlay">

@@ -20,16 +20,16 @@ type DatasetConfig = {
 
 const DataSets: DatasetConfig[] = [
   {
-    label: 'Tracy',
+    label: '玩具',
     url: '/tracy.sog',
     position: [8, 5, 8],
-    rotation: [180, 0, 0],
+    rotation: [180, 180, 0],
     scale: [1, 1, 1],
-    cameraPosition: [12.45, 11.041, 11.91],
+    cameraPosition: [16.81, 14.907, 16.08],
     cameraDirection: [-0.608, -0.54, -0.582]
   },
   {
-    label: 'Anji',
+    label: '校园',
     url: '/anji.sog',
     position: [8, 5, 8],
     rotation: [180, 0, 0],
@@ -38,13 +38,13 @@ const DataSets: DatasetConfig[] = [
     cameraDirection: [-0.631, -0.428, -0.646]
   },
   {
-    label: '场景',
-    url: '/fish-light.sog',
+    label: '文物',
+    url: '/wenwu.sog',
     position: [8, 5, 8],
     rotation: [180, 0, 0],
     scale: [1, 1, 1],
-    cameraPosition: [5.645, -3.004, 7.297],
-    cameraDirection: [0.242, 0.955, 0.172]
+    cameraPosition: [12.189, 7.513, 12.03],
+    cameraDirection: [-0.652, -0.402, -0.643]
   },
   {
     label: '佛像',
@@ -52,9 +52,9 @@ const DataSets: DatasetConfig[] = [
     position: [8, 5, 8],
     rotation: [180, 0, 0],
     scale: [1, 1, 1],
-    cameraPosition: [8.586, 5.617, 8.454],
-    cameraDirection: [-0.659, -0.451, -0.602]
-  },
+    cameraPosition: [9.045, 5.94, 8.98],
+    cameraDirection: [-0.643, -0.422, -0.639]
+  }
 ];
 
 const operationGroups: ViewerControlGroup[] = [
