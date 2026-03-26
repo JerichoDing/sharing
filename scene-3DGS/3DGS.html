@@ -402,43 +402,16 @@
     <div class="hero-badge">3D Gaussian Splatting · 前端分享</div>
     <h1>让 <span class="highlight">3DGS</span> 真正落地到 Web 前端</h1>
     <p class="hero-sub">
-        25 分钟，从概念到工程实践：聚焦体积、加载、交互与移动端兜底，为熟悉 React/Vite 与 WebGL/Three.js 的前端同学提供一套可直接复用的 3DGS 上线方案。
+        25 分钟，从概念到工程实践：聚焦体积、加载、交互与移动端兜底，为熟悉 React/Vite 与 WebGL/Three.js 的前端同学提供一套可直接复用的 3DGS 方案。
     </p>
     <div class="hero-arrow"><span>↓</span></div>
 </section>
 
-<!-- Content Sections -->
-<section class="section center" id="section-intro">
-    <span class="section-label" style="background: rgba(236,72,153,0.15); color: var(--accent-pink);">分享概览</span>
-    <h2>0. 分享目标与受众定位（约 1 分钟）</h2>
-    <p>这次分享的核心，是讲清楚 3DGS 在 Web 前端的工程落地方法，并基于可运行示例完成一场 25 分钟左右的现场演示。</p>
-    <p>受众是假定已经熟悉 React / Vite，并对 WebGL / Three.js / 游戏引擎有基础认知的前端同学。</p>
-
-    <div class="card-grid">
-        <div class="card anim-slideInLeft stagger-1">
-            <div class="card-icon">🎯</div>
-            <h3>分享定位</h3>
-            <p>这不是炫技 Demo，而是一套可上线、可复用的工程方案，重点在于“如何真正交付”。</p>
-        </div>
-        <div class="card anim-scaleIn stagger-2">
-            <div class="card-icon">🧩</div>
-            <h3>关注的前端问题</h3>
-            <p>体积、加载速度、交互体验、稳定性，以及移动端的兜底策略，都是你需要回答的问题。</p>
-        </div>
-        <div class="card anim-slideInRight stagger-3">
-            <div class="card-icon">📦</div>
-            <h3>可复用模板</h3>
-            <p>最终输出是一套已经落地到示例项目中的模版代码，可以在自己业务中直接套用与扩展。</p>
-        </div>
-    </div>
-</section>
-
-<hr class="divider">
 
 <section class="section center" id="section-what-is-3dgs">
     <span class="section-label" style="background: rgba(59,130,246,0.15); color: var(--accent-cyan);">核心概念</span>
-    <h2>1. 一句话理解 3DGS（前端视角，约 2 分钟）</h2>
-    <p>从前端工程师的视角，可以把 3D Gaussian Splatting 理解为：大量带方向、尺度、颜色与透明度的高斯点，在 GPU 上完成投影与融合，而不是传统的三角网格渲染。</p>
+    <h2>1. 一句话理解 3DGS</h2>
+    <p>从前端工程师的视角，3D Gaussian Splatting 可以理解为一条“照片重建场景数据（如 .sog）→ 前端加载与解码 → GPU 对海量高斯椭球执行屏幕投影和透明度混合 → 输出可实时交互画面”的渲染链路，它不再依赖传统三角网格建模，而是以高斯点云表达真实场景细节并通过相机控制完成浏览体验。</p>
 
     <div class="card-grid">
         <div class="card anim-slideInLeft stagger-1">
@@ -457,14 +430,14 @@
             <p>格式选择与渲染链路是成败关键：你需要针对 3DGS 的数据与渲染特性，重新设计交付路径与前端工程方案。</p>
         </div>
     </div>
-    <p>对于听众而言，只要牢牢抓住这三点，就能快速在脑中形成“3DGS 与传统 3D 渲染有什么本质区别”的对比框架。</p>
+    <p>只要牢牢抓住这三点，就能快速在脑中形成“3DGS 与传统 3D 渲染有什么本质区别”的对比框架。</p>
 </section>
 
 <hr class="divider">
 
 <section class="section center" id="section-format">
     <span class="section-label" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">格式选择</span>
-    <h2>2. 格式选择：PLY vs SOG（约 3 分钟）</h2>
+    <h2>2. 格式选择：PLY vs SOG</h2>
     <p>在工程落地时，首先要讲清楚资产格式的选择——这会直接决定首屏体积、加载耗时以及移动端体验。</p>
 
     <div class="card-grid">
@@ -482,7 +455,6 @@
         </div>
     </div>
 
-    <p style="margin-top:2rem;">讲稿希望你在这里给出清晰结论：</p>
     <div class="card anim-scaleIn stagger-3">
         <div class="card-icon">✅</div>
         <h3>结论：研发阶段可保留 PLY，上线交付优先 SOG</h3>
@@ -494,7 +466,7 @@
 
 <section class="section center" id="section-why-playcanvas">
     <span class="section-label" style="background: rgba(168,85,247,0.15); color: var(--accent-purple);">生态选择</span>
-    <h2>3. 为什么选 PlayCanvas 生态（约 2 分钟）</h2>
+    <h2>3. 为什么选 PlayCanvas 生态</h2>
     <p>从“能不能跑起来”到“能不能交付上线”，PlayCanvas 生态在 3DGS 场景下提供了一条比较完整的工程链路。</p>
 
     <div class="card-grid">
@@ -518,72 +490,44 @@
 
 <hr class="divider">
 
-<section class="section center" id="section-demo">
+<section class="section center" id="section-demo" >
     <span class="section-label" style="background: rgba(34,197,94,0.15); color: var(--accent-green);">演示主段</span>
-    <h2>4. 可运行示例（演示主段，约 8 分钟）</h2>
-    <p>这一段是分享的“高潮部分”：通过完整可运行示例，把前面讲过的格式、引擎与工程策略全部串在一起。</p>
+    <h2>4. 可运行示例</h2>
+    <p>Show me the code</p>
 
     <div class="card-grid">
-        <div class="card anim-slideInLeft stagger-1">
-            <div class="card-icon">📂</div>
-            <h3>4.1 示例项目位置</h3>
-            <p>示例目录：</p>
-            <p><code>/Users/jerichoding/Desktop/sharing/3DGS/example</code></p>
-            <div class="code-block">
-<span class="comment"># 启动示例项目</span>
-<span class="keyword">cd</span> /Users/jerichoding/Desktop/sharing/3DGS/example
-<span class="keyword">npm</span> install
-<span class="keyword">npm</span> run dev
-            </div>
-        </div>
-        <div class="card anim-scaleIn stagger-2">
-            <div class="card-icon">🎥</div>
-            <h3>4.2 建议的现场演示节奏</h3>
-            <p>1）先打开页面，展示加载 HUD 与进度条，让听众感受到“真实上线场景”的加载体验。</p>
-            <p>2）模型加载完成后，演示 orbit / pan / zoom 交互，让大家知道交互是“默认给好的”。</p>
-            <p>3）解释为什么默认设置 <code>antialias: false</code>，强调这是在控制 fragment 压力。</p>
-            <p>4）指出 <code>highQualitySH</code> 是质量/性能开关，移动端可以默认关闭以保性能。</p>
-            <p>5）示范如何把默认 URL 替换为本地 <code>public/splats/*.sog</code> 资源，强调“接入自己的模型很简单”。</p>
-        </div>
-        <div class="card anim-slideInRight stagger-3">
-            <div class="card-icon">🗂️</div>
-            <h3>4.3 代码映射：讲哪里看哪里</h3>
-            <p>你可以用“目标 → 文件 → 讲解重点”的方式引导听众：</p>
-            <p>· 示例入口：<code>src/App.tsx</code> —— 默认资源 URL 与 Viewer 参数注入。</p>
-            <p>· 核心渲染组件：<code>src/components/SplatViewer.tsx</code> —— <code>Application</code>、<code>useSplat</code>、进度订阅、错误兜底。</p>
-            <p>· 交互与 HUD 视觉：<code>src/components/SplatViewer.css</code> —— 加载层与提示层的视觉与动效。</p>
-            <p>· 脚本类型声明：<code>src/types/playcanvas-scripts.d.ts</code> —— <code>camera-controls.mjs</code> 的 TS 兼容处理。</p>
-            <p>· 运行说明：<code>README.md</code> —— 启动方式、资源替换与转换命令汇总。</p>
-        </div>
-    </div>
+      
+       
 </section>
 
 <hr class="divider">
 
 <section class="section center" id="section-engineering">
     <span class="section-label" style="background: rgba(249,115,22,0.15); color: var(--accent-orange);">工程落地</span>
-    <h2>5. 前端工程落地关键点（约 4 分钟）</h2>
-    <p>从 Demo 到上线，核心是三件事：资源交付策略、加载体验设计与性能开关管理。</p>
+    <h2>5. 前端工程落地关键点</h2>
+    <p>从 Demo 到上线，核心不是“能跑起来”，而是“能稳定交付”：资源怎么传、加载怎么感知、性能怎么兜底。</p>
 
     <div class="card-grid">
         <div class="card anim-slideInLeft stagger-1">
             <div class="card-icon">🚚</div>
             <h3>5.1 资源交付策略</h3>
-            <p>· 使用 SOG + CDN 长缓存，并配合版本号与 <code>immutable</code> 策略，降低反复拉取的成本。</p>
-            <p>· 按场景拆包，避免首屏一次性灌入多个大模型。</p>
-            <p>· 首屏优先出业务 UI（海报 / 骨架屏），然后再加载 splat，让用户“看见东西”再等 3D。</p>
+            <p>· 交付层统一为 SOG，配合 CDN 长缓存与文件指纹（hash）实现“可回滚、可缓存、可追踪”的版本策略。</p>
+            <p>· 按业务入口和场景颗粒拆包，避免首屏并行拉取多个大模型导致网络拥塞与主线程抢占。</p>
+            <p>· 首屏先交付业务骨架（海报 / 价格 / CTA），再懒加载 splat，让用户先完成理解再等待 3D 细节。</p>
         </div>
         <div class="card anim-scaleIn stagger-2">
             <div class="card-icon">📶</div>
-            <h3>5.2 加载体验（必须做）</h3>
-            <p>· 使用资产 hook 的 <code>subscribe</code> 做进度订阅，让进度条是“真进度”，而不是假动画。</p>
-            <p>· 错误态必须给可执行提示，例如 URL 是否错误、CORS 配置是否有问题、资源是否可达。</p>
+            <h3>5.2 加载体验</h3>
+            <p>· 用资产 hook 的 <code>subscribe</code> 订阅真实加载进度，区分“下载中 / 解码中 / 可交互”三个关键状态。</p>
+            <p>· 错误态必须可执行：提示 URL、CORS、资源可达性，并提供重试按钮与降级回退（图片或视频）。</p>
+            <p>· 首次进入建议配合“预计等待时长 + 当前阶段文案”，降低用户对黑屏和卡住的主观感知。</p>
         </div>
         <div class="card anim-slideInRight stagger-3">
             <div class="card-icon">🧯</div>
-            <h3>5.3 性能开关（必须讲）</h3>
-            <p>· splat 场景优先关闭抗锯齿，减轻 fragment 压力，换取更稳的帧率。</p>
-            <p>· 使用 <code>highQualitySH</code> 作为设备分档开关，移动端优先关闭，PC 高端机型可以开启以提升品质。</p>
+            <h3>5.3 性能开关</h3>
+            <p>· splat 场景优先关闭抗锯齿，先保帧率稳定，再按设备余量做画质增量。</p>
+            <p>· 把 <code>highQualitySH</code> 作为核心分档开关：移动端默认关，中高端桌面端按白名单开启。</p>
+            <p>· 预设低中高三档策略（首屏时间、FPS、内存阈值）并自动切换，避免手工调参只对“开发机”有效。</p>
         </div>
     </div>
 </section>
@@ -592,25 +536,27 @@
 
 <section class="section center" id="section-extend">
     <span class="section-label" style="background: rgba(6,182,212,0.15); color: var(--accent-cyan);">进一步扩展</span>
-    <h2>6. 可扩展方案（约 2 分钟）</h2>
-    <p>当业务走到“多模型同屏 / 超大场景”的阶段，你可以在现有方案上继续向下挖。</p>
+    <h2>6. 可扩展方案</h2>
+    <p>当业务进入“多模型同屏、超大空间、长周期运营”阶段，需要把 Demo 思维升级为系统化渲染管线。</p>
 
     <div class="card-grid">
         <div class="card anim-slideInLeft stagger-1">
             <div class="card-icon">🌌</div>
             <h3>统一排序与渲染：`unified`</h3>
-            <p>通过 <code>unified</code> 能够对多 splat 进行统一排序与渲染管理，避免多实例之间相互“打架”。</p>
+            <p>通过 <code>unified</code> 对多 splat 做统一排序与渲染调度，避免多实例并存时的遮挡冲突和帧抖动。</p>
+            <p>适用于“主模型 + 环境模型 + 特效模型”同屏的组合场景。</p>
         </div>
         <div class="card anim-scaleIn stagger-2">
             <div class="card-icon">📊</div>
             <h3>预算与 LOD：`splatBudget` / `lodDistances`</h3>
-            <p>用 <code>splatBudget</code> 与 <code>lodDistances</code> 控制每一帧的 splat 数量与 LOD 策略，在画质与性能之间取得平衡。</p>
+            <p>用 <code>splatBudget</code> 控制每帧可参与渲染的 splat 上限，用 <code>lodDistances</code> 按距离切换细节层级。</p>
+            <p>核心目标是把“最贵的算力”集中到用户当前关注区域，而不是平均分配到整张场景。</p>
         </div>
         <div class="card anim-slideInRight stagger-3">
             <div class="card-icon">🧱</div>
             <h3>更大规模：流式 LOD 资产组织</h3>
-            <p>对于超大场景，可以进一步结合流式 LOD 资产管理，将场景按区域 / 距离拆分成可流式加载的块。</p>
-            <p>这些能力都可以沿着 GSplat 组件与官方 API 的路线持续深入，逐步演进到更复杂的项目形态。</p>
+            <p>超大场景建议做“空间分块 + 距离分级 + 按需流式加载”，让弱网和移动端也能渐进式进入。</p>
+            <p>这类能力可以沿 GSplat 组件与 Engine API 逐步演进，不必一次性重构整套前端架构。</p>
         </div>
     </div>
 </section>
@@ -619,84 +565,62 @@
 
 <section class="section center" id="section-checklist">
     <span class="section-label" style="background: rgba(168,85,247,0.15); color: var(--accent-purple);">上线检查</span>
-    <h2>7. 上线前检查清单（约 2 分钟）</h2>
-    <p>在真正上线前，可以按这份清单做一次终检，确保没有遗漏关键环节。</p>
+    <h2>7. 上线前检查清单</h2>
+    <p>上线前请按“可交付、可运行、可观测”三条主线做终检，避免上线后才发现基础能力缺口。</p>
 
     <div class="card-grid">
         <div class="card anim-scaleIn stagger-1">
             <div class="card-icon">✅</div>
             <h3>交付与稳定性</h3>
-            <p>· 交付格式是否已统一为 SOG。</p>
-            <p>· 是否具备“加载中 / 失败 / fallback”完整状态机。</p>
-            <p>· 是否验证交互一致性（鼠标 + 触屏）。</p>
+            <p>· 交付格式是否统一为 SOG，且资源命名、版本号、缓存策略已固定。</p>
+            <p>· 是否具备“加载中 / 失败 / 回退”完整状态机，并验证重试链路可用。</p>
+            <p>· 是否验证输入一致性（鼠标、触屏、触控板）和关键手势冲突。</p>
         </div>
         <div class="card anim-scaleIn stagger-2">
             <div class="card-icon">🚦</div>
             <h3>性能与兜底策略</h3>
-            <p>· 是否完成性能兜底：<code>antialias: false</code>、移动端 <code>highQualitySH: false</code>。</p>
-            <p>· 是否根据设备档位给出合理的配置切换。</p>
+            <p>· 是否完成兜底配置：<code>antialias: false</code>、移动端 <code>highQualitySH: false</code>、首屏预算受控。</p>
+            <p>· 是否按设备档位自动切换参数，并验证中低端机不会出现明显卡顿或闪退。</p>
         </div>
         <div class="card anim-scaleIn stagger-3">
             <div class="card-icon">📈</div>
             <h3>监控与可观测性</h3>
-            <p>· 是否有监控：首屏耗时、下载耗时、解码耗时、FPS 等关键指标。</p>
-            <p>· 是否为后续优化预留了埋点与日志上报能力。</p>
+            <p>· 是否埋点关键路径：首屏可见时间、资源下载、解码耗时、首帧与稳态 FPS。</p>
+            <p>· 是否具备异常日志与设备信息回传，能快速定位“哪类机型、哪段流程”出问题。</p>
         </div>
     </div>
 </section>
 
 <hr class="divider">
 
-<section class="section center" id="section-commands">
-    <span class="section-label" style="background: rgba(34,197,94,0.15); color: var(--accent-green);">命令速查</span>
-    <h2>8. 附录：命令速查（讲解时可口播）</h2>
-    <p>最后附上一页命令速查表，方便你在分享时边操作边口播。</p>
 
-    <h3 style="margin-top:1.5rem;">初始化同类项目</h3>
-    <div class="code-block">
-<span class="comment"># 创建 React + TypeScript 项目</span>
-<span class="keyword">npm</span> create vite@latest gsplat-web -- --template react-ts
-<span class="keyword">cd</span> gsplat-web
-<span class="comment"># 安装 PlayCanvas 与 React 集成</span>
-<span class="keyword">npm</span> install @playcanvas/react playcanvas
-    </div>
-
-    <h3 style="margin-top:1.5rem;">PLY 转 SOG</h3>
-    <div class="code-block">
-<span class="comment"># 全局安装转换工具</span>
-<span class="keyword">npm</span> install -g @playcanvas/splat-transform
-<span class="comment"># 执行 PLY → SOG 转换</span>
-<span class="keyword">splat-transform</span> input.ply output.sog
-    </div>
-</section>
 
 <hr class="divider">
 
 <section class="section center" id="section-references">
     <span class="section-label" style="background: rgba(59,130,246,0.15); color: var(--accent-blue);">参考资料</span>
-    <h2>9. 参考资料（末页）</h2>
-    <p>最后一页可以作为“附录 / 进一步阅读”留给听众，方便他们在会后继续深入。</p>
+    <h2>8. 参考资料</h2>
 
     <div class="card-grid">
         <div class="card anim-slideInLeft stagger-1">
             <div class="card-icon">📚</div>
             <h3>PlayCanvas React 集成</h3>
-            <p><code>@playcanvas/react</code>：React 集成方式与安装命令。</p>
+            <p>先看 <code>@playcanvas/react</code> 的组件与 hooks 用法，建立“React 状态驱动 3D 场景”的基本心智模型。</p>
         </div>
         <div class="card anim-scaleIn stagger-2">
             <div class="card-icon">🚀</div>
             <h3>入门与性能建议</h3>
-            <p>用 React 构建第一个 splat 应用，包含性能建议与 <code>camera-controls</code> 的实践。</p>
+            <p>用最小示例跑通首个 splat 项目，再对照性能建议理解哪些参数会直接影响移动端体验。</p>
         </div>
         <div class="card anim-scaleIn stagger-3">
             <div class="card-icon">🧾</div>
             <h3>SOG 与 资产 hooks 文档</h3>
-            <p>SOG 格式与压缩说明，以及 GSplat / <code>useSplat</code> / 资产 hooks 等官方文档。</p>
+            <p>重点关注 SOG 压缩策略与资产 hooks（<code>useSplat</code> / subscribe）以建立稳定的加载状态机。</p>
         </div>
         <div class="card anim-slideInRight stagger-4">
             <div class="card-icon">🧪</div>
             <h3>Engine API 示例</h3>
-            <p>包含 <code>toy-cat.sog</code> 等示例资源的 Engine API 教程，可以帮助你快速做出自己的实验场景。</p>
+            <p>通过 Engine API 示例快速验证参数调优、机位控制与多模型组合，形成你自己的实验基线。</p>
         </div>
     </div>
 </section>
