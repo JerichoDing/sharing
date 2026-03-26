@@ -7,14 +7,6 @@ export type AutoOrbitState = {
   angle: number;
 };
 
-export type AutoOrbitStatus = {
-  autoOrbit: boolean;
-  loading: boolean;
-  hasAsset: boolean;
-  userInteracted: boolean;
-  orbitState: AutoOrbitState | null;
-};
-
 export type AutoOrbitStep = {
   state: AutoOrbitState;
   position: Vec3;
@@ -48,16 +40,6 @@ export function createAutoOrbitState(
     height: cameraPosition[1] - target[1],
     angle: Math.atan2(dz, dx),
   };
-}
-
-export function shouldRunAutoOrbit({
-  autoOrbit,
-  loading,
-  hasAsset,
-  userInteracted,
-  orbitState,
-}: AutoOrbitStatus) {
-  return autoOrbit && !loading && hasAsset && !userInteracted && orbitState !== null;
 }
 
 export function advanceAutoOrbit(

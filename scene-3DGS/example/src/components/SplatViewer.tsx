@@ -16,21 +16,10 @@ import {
   advanceAutoOrbit,
   createAutoOrbitState,
   shouldEnableAutoOrbitByDefault,
-  shouldRunAutoOrbit,
 } from './splatAutoOrbit';
 import './SplatViewer.css';
 
 type Vec3 = [number, number, number];
-
-export type ViewerInfoItem = {
-  label: string;
-  value: string;
-};
-
-export type ViewerControlGroup = {
-  title: string;
-  items: string[];
-};
 
 export type SplatTransform = {
   position?: Vec3;
@@ -49,8 +38,6 @@ export type SplatViewerProps = {
   hintText?: string;
   title?: string;
   subtitle?: string;
-  sceneInfo?: ViewerInfoItem[];
-  operationGroups?: ViewerControlGroup[];
   onCameraUpdate?: (info: CameraInfo) => void;
 };
 
@@ -233,18 +220,6 @@ function AutoOrbitController({
 
         const orbitState = orbitStateRef.current;
 
-        if (
-          !shouldRunAutoOrbit({
-            autoOrbit: enabled,
-            loading: false,
-            hasAsset: true,
-            userInteracted: false,
-            orbitState,
-          })
-        ) {
-          return;
-        }
-
         if (!orbitState) return;
 
         const result = advanceAutoOrbit(orbitState, dt, angularSpeed);
@@ -355,8 +330,6 @@ export function SplatViewer({
   hintText = '左键旋转 / 右键平移 / 滚轮缩放',
   title = '3DGS Web Viewer',
   subtitle = '加载高斯泼溅资源并在浏览器中实时浏览。',
-  sceneInfo = [],
-  operationGroups = [],
   onCameraUpdate,
 }: SplatViewerProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -438,9 +411,6 @@ export function SplatViewer({
   const autoOrbitEnabled =
     resolvedAutoOrbit && !userInteracted && sceneStatus.hasAsset && !sceneStatus.loading;
 
-
-
-
   return (
     <div className="splat-root" ref={rootRef}>
       <Application
@@ -459,7 +429,6 @@ export function SplatViewer({
           highQualitySH={highQualitySH}
           onStatusChange={setSceneStatus}
           onCameraUpdate={onCameraUpdate}
-        
         />
       </Application>
 
@@ -471,9 +440,7 @@ export function SplatViewer({
             <div className="hero-subtitle">{subtitle}</div>
           </div>
         </div>
-
       </div>
-
 
       {(sceneStatus.loading || sceneStatus.error || sceneStatus.empty) && (
         <div className="overlay">

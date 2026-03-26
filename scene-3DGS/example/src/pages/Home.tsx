@@ -2,8 +2,6 @@ import {
   SplatViewer,
   type CameraInfo,
   type SplatTransform,
-  type ViewerControlGroup,
-  type ViewerInfoItem,
 } from '../components/SplatViewer';
 import { useMemo, useState } from 'react';
 import './Home.css';
@@ -57,33 +55,6 @@ const DataSets: DatasetConfig[] = [
   }
 ];
 
-const operationGroups: ViewerControlGroup[] = [
-  {
-    title: '桌面端',
-    items: [
-      '左键拖动：环绕观察主体结构',
-      '右键拖动：平移镜头，对准细节区域',
-      '滚轮缩放：快速切换全景与局部视角',
-    ],
-  },
-  {
-    title: '触控端',
-    items: [
-      '单指拖动：旋转镜头',
-      '双指捏合：缩放视角',
-      '双指平移：横向或纵向查看建筑层次',
-    ],
-  },
-  {
-    title: '演示建议',
-    items: [
-      '先拉远建立整体空间感，再逐步推进到局部细节',
-      '演示时沿中轴线缓慢平移，更容易体现体积层次',
-      '首次进入可能需要等待解码，完成后再开始操作讲解',
-    ],
-  },
-];
-
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [cameraDrafts, setCameraDrafts] = useState(
@@ -92,15 +63,6 @@ export default function Home() {
   const [cameraInfo, setCameraInfo] = useState<CameraInfo | null>(null);
   const active = DataSets[Math.min(Math.max(activeIndex, 0), DataSets.length - 1)];
   const activeDraft = cameraDrafts[activeIndex];
-
-  const sceneInfo: ViewerInfoItem[] = useMemo(
-    () => [
-      { label: '场景', value: `${active.label} 模型` },
-      { label: '格式', value: 'SOG' },
-      { label: '渲染', value: 'PlayCanvas GSplat' },
-    ],
-    [active.label],
-  );
 
   const externalConfigText = useMemo(() => {
     if (!activeDraft) return '';
@@ -144,7 +106,7 @@ export default function Home() {
               ))}
             </select>
           </div>
-          <div style={{ marginTop: 12 }}>
+          {/* <div style={{ marginTop: 12 }}>
             <button
               type="button"
               onClick={() => {
@@ -204,15 +166,13 @@ export default function Home() {
                 fontSize: 11,
               }}
             />
-          </div>
+          </div> */}
         </section>
 
         <section className="home-viewer-shell">
           <SplatViewer
             src={active.url}
             subtitle="适合分享时现场操作的 3DGS 浏览面板，保留资源信息、状态反馈与操作指南。"
-            sceneInfo={sceneInfo}
-            operationGroups={operationGroups}
             initialCameraPosition={activeDraft.position}
             initialCameraDirection={activeDraft.direction}
             splatTransform={
