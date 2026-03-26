@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3DGS 技术分享</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* 配色方案: 碳薄荷暗黑 */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1c1c1c;
+            --bg-card: #252525;
+            --text-primary: #e5e5e5;
+            --text-secondary: #b8b8b8;
+            --accent-green: #00ffa3;
+            --accent-blue: #00d4ff;
+            --accent-purple: #b794f6;
+            --accent-orange: #ffa500;
+            --accent-cyan: #00ffa3;
+            --accent-pink: #ff6ec7;
+            --border-color: #333333;
+            --code-bg: #0d0d0d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(0, 255, 163, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 0%, rgba(183, 148, 246, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1.2rem;
+            border: 1px solid var(--accent-purple);
+            border-radius: 999px;
+            color: var(--accent-purple);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.2s;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.4s;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-sub {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.6s;
+        }
+
+        .hero-arrow {
+            margin-top: 3rem;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards 0.8s;
+        }
+
+        .hero-arrow span {
+            display: block;
+            font-size: 2rem;
+            color: var(--text-secondary);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        /* Entry Animations */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes rotateIn {
+            from { opacity: 0; transform: rotate(-10deg) scale(0.9); }
+            to { opacity: 1; transform: rotate(0) scale(1); }
+        }
+
+        /* Continuous Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 163, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 255, 163, 0.6); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Animation Classes */
+        .anim-slideInLeft { animation: slideInLeft 0.6s ease forwards; }
+        .anim-slideInRight { animation: slideInRight 0.6s ease forwards; }
+        .anim-scaleIn { animation: scaleIn 0.6s ease forwards; }
+        .anim-rotateIn { animation: rotateIn 0.6s ease forwards; }
+        .anim-float { animation: float 3s ease-in-out infinite; }
+        .anim-pulse { animation: pulse 2s ease-in-out infinite; }
+        .anim-glow { animation: glow 2s ease-in-out infinite; }
+        .anim-spin { animation: spin 2s linear infinite; }
+        .anim-shake { animation: shake 0.5s ease; }
+
+        /* Stagger delays */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Sections */
+        .section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section.center {
+            text-align: center;
+        }
+
+        .section.center .section-label,
+        .section.center h2,
+        .section.center p {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-label {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .section h2 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+            max-width: 800px;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: transform 0.3s, border-color 0.3s;
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-blue);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Icon Styles */
+        .icon-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .icon-wrapper.circle {
+            border-radius: 50%;
+            padding: 1rem;
+            background: rgba(0, 255, 163, 0.1);
+        }
+
+        .icon-wrapper.square {
+            border-radius: 8px;
+            padding: 1rem;
+            background: rgba(0, 255, 163, 0.1);
+        }
+
+        .icon-sm { width: 1rem; height: 1rem; }
+        .icon-md { width: 1.5rem; height: 1.5rem; }
+        .icon-lg { width: 2rem; height: 2rem; }
+        .icon-xl { width: 3rem; height: 3rem; }
+
+        .icon-blue { color: var(--accent-blue); }
+        .icon-purple { color: var(--accent-purple); }
+        .icon-green { color: var(--accent-green); }
+        .icon-orange { color: var(--accent-orange); }
+        .icon-cyan { color: var(--accent-cyan); }
+        .icon-pink { color: var(--accent-pink); }
+
+        .icon-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-icon {
+            width: 2rem;
+            height: 2rem;
+            color: var(--accent-blue);
+        }
+
+        .icon-interactive {
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .icon-interactive:hover {
+            transform: scale(1.1);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Code block */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            white-space: pre;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre;
+        }
+
+        .code-block pre code {
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: inherit;
+        }
+
+        .code-block .comment { color: #6a737d; }
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .func { color: #d2a8ff; }
+        .code-block .symbol { color: #79c0ff; }
+
+        /* Divider */
+        .divider {
+            max-width: 1100px;
+            margin: 0 auto;
+            border: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--accent-purple);
+            text-decoration: none;
+        }
+
+        /* Markdown content (marked 输出) */
+        .md-content {
+            text-align: left;
+            color: var(--text-secondary);
+        }
+
+        .md-content h3 {
+            color: var(--text-primary);
+            font-size: 1.35rem;
+            margin: 1.6rem 0 0.8rem;
+            line-height: 1.25;
+        }
+
+        .md-content h4 {
+            color: var(--text-primary);
+            font-size: 1.12rem;
+            margin: 1.2rem 0 0.7rem;
+        }
+
+        .md-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1.1rem;
+        }
+
+        .md-content ul, .md-content ol {
+            padding-left: 1.35rem;
+            margin: 0.8rem 0 1.2rem;
+        }
+
+        .md-content li {
+            margin: 0.25rem 0;
+        }
+
+        .md-content blockquote {
+            border-left: 3px solid var(--accent-green);
+            padding: 0.6rem 1rem;
+            margin: 1.2rem 0;
+            background: rgba(0, 255, 163, 0.06);
+            border-radius: 10px;
+            color: var(--text-secondary);
+        }
+
+        .md-content hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 2rem auto;
+            max-width: 900px;
+        }
+
+        .md-content code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            padding: 0.12rem 0.4rem;
+            font-size: 0.95em;
+            color: var(--text-primary);
+        }
+
+        .md-content .md-table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.02);
+            margin: 1.4rem 0;
+        }
+
+        .md-content table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 520px;
+        }
+
+        .md-content th, .md-content td {
+            border: 1px solid var(--border-color);
+            padding: 0.65rem 0.7rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-badge">3DGS 技术分享</div>
+    <h1>用 <span class="highlight">高斯泼溅</span> 讲清楚一切</h1>
+    <p class="hero-sub">从原理到前端渲染落地，并延伸到电商与广告投放方案</p>
+    <div class="hero-arrow"><span>↓</span></div>
+</section>
+
+<!-- Content Sections -->
+<section class="section center" id="section-1">
+    <span class="section-label" style="background: rgba(0,255,163,0.15); color: var(--accent-green);">技术解析</span>
+    <h2>第一部分：3DGS 技术解析</h2>
+    <p>从高斯球的核心原理出发，串联投影、混合、浏览器渲染实现要点与性能优化路线。</p>
+    <div class="md-content" id="md-part1"></div>
+    <script type="text/markdown" id="md-part1-src">
+## 一、3DGS 是什么
+
+3D Gaussian Splatting（3DGS）是 2023 年 SIGGRAPH 发表的一项 3D 场景表示与渲染技术。它将三维场景表示为**数百万个带有颜色和透明度的高斯椭球**，通过将这些椭球从 3D 投影到 2D 屏幕来完成渲染。
+
+与传统方案的核心区别在于：**只需要拍照片，就能重建出可实时渲染的 3D 场景，无需美术手工建模**。
+
+## 二、核心原理
+
+### 2.1 高斯球（Gaussian）
+
+每个高斯球包含以下属性：
+
+| 属性 | 说明 |
+|------|------|
+| 位置（xyz） | 高斯球在 3D 空间中的坐标 |
+| 旋转（四元数） | 控制椭球的朝向 |
+| 缩放（3 轴标准差） | 控制椭球在每个轴的大小 |
+| 颜色（球谐函数系数） | 实现视角相关的颜色变化 |
+| 透明度（opacity） | 控制高斯球的可见程度 |
+
+> 可以类比为"一个会随视角变色的彩色雾气泡泡"。
+
+### 2.2 Splatting（投影）
+
+将每个 3D 高斯椭球投影到屏幕上，得到一个 2D 高斯斑（Splat）。核心过程是将 3D 协方差矩阵投影到 2D 视平面，最终每个 Splat 就是一个**带有颜色和透明度渐变的椭圆**。
+
+### 2.3 Alpha Blending（混合叠加）
+
+多个高斯球在同一像素上叠加时，必须**从近到远排序**后按 alpha-compositing 公式叠加。这个**深度排序**是整个渲染实现中最大的性能瓶颈。
+
+---
+## 三、与传统 3D 渲染方式的对比
+
+### 3.1 三种方案横向对比
+
+| 维度 | Mesh（传统网格） | NeRF（神经辐射场） | 3DGS（高斯泼溅） |
+|------|------------------|-------------------|------------------|
+| 诞生时间 | 计算机图形学早期 | 2020 年 | 2023 年 |
+| 场景表示 | 三角面片 + 纹理贴图 | 隐式神经网络 | 高斯椭球点云 |
+| 建模方式 | 美术手工建模 | 照片重建 | 照片重建 |
+| 渲染速度 | 实时 | 慢（逐像素查询 MLP） | 实时（快 NeRF 10-100 倍） |
+| 浏览器运行 | 支持（WebGL/Three.js） | 基本不可行 | **可以实时运行** |
+| 视觉质量 | 依赖模型精度和贴图 | 高（照片级真实感） | 高（照片级真实感） |
+
+### 3.2 优势
+
+- **制作成本低**：拍照即可重建，不需要专业 3D 建模师
+- **渲染速度快**：相比 NeRF 快 10-100 倍，可在浏览器实时运行
+- **视觉质量高**：照片级真实感，能表达毛发、烟雾等复杂质感
+- **工程友好**：数据结构简单（点云 + 属性），易于压缩和传输
+- **端上可用**：WebGL/WebGPU 均可支持，移动端也能运行
+
+### 3.3 劣势
+
+- **编辑困难**：高斯球没有拓扑结构，很难做任意形变和部件替换
+- **动态场景支持弱**：人物运动、流水、烟雾等动态内容需要扩展方案（4DGS），文件体积极大
+- **大场景工程复杂**：城市级别需要分块加载 + LOD，工程复杂度高
+- **文件体积大**：原始 `.ply` 文件动辄 500MB-2GB，需要额外压缩
+- **反光/透明材质不佳**：纯反光和高透明材质的重建效果有限
+- **移动端性能受限**：高斯球数量需控制在 30 万以下才能保证 30fps
+
+---
+## 四、浏览器渲染实现要点
+
+### 4.1 文件格式
+
+- **`.ply`**：原始格式，每个高斯球约 59 个 float 字段，体积大
+- **`.splat`**：压缩格式，每个高斯球 32 字节
+- **`.ksplat`**：进一步压缩，每个高斯球约 19 字节（约 12:1 压缩比）
+
+```js
+// 读取 .splat 文件，每个高斯球 32 字节
+const f32 = new Float32Array(buffer, offset, 3);   // xyz position
+const u8  = new Uint8Array(buffer, offset + 24, 8); // scale(3) + rot(4) + opacity
+```
+
+### 4.2 深度排序优化
+
+每帧相机移动后，所有高斯球需要重新按深度排序（几十万到几百万个）。关键方案：
+
+- **Web Worker**：排序放到 Worker 线程，避免阻塞主线程
+- **基数排序（Radix Sort）**：替代 JS 内置 `Array.sort`，速度快 10 倍以上
+- **SharedArrayBuffer**：零拷贝传递排序结果
+
+```js
+// Worker 内部：基数排序 + 每帧通过 SharedArrayBuffer 传递结果
+const sortedIndices = radixSort(depths);
+self.postMessage({ sortedIndices }, [sortedIndices.buffer]);
+```
+
+### 4.3 WebGL 渲染
+
+用四边形（quad）作为 instance，每帧更新排序后的 draw order：
+
+```glsl
+// fragment shader 核心
+vec2 d = vPos;
+float alpha = exp(-0.5 * dot(d, d)) * vOpacity;
+if (alpha < 1.0/255.0) discard;
+gl_FragColor = vec4(vColor * alpha, alpha);
+```
+
+### 4.4 WebGPU 未来方向
+
+WebGPU 可以在 GPU 上直接做排序（Compute Shader），省去 CPU 和 GPU 之间的数据回传，Chrome 113+ 已正式支持。
+
+### 4.5 性能优化一览
+
+| 优化手段 | 效果 |
+|----------|------|
+| Worker + Radix Sort | 排序耗时从 ~80ms 降到 ~8ms |
+| SharedArrayBuffer 零拷贝 | 省去 Uint32Array 的 structuredClone 开销 |
+| 视锥剔除（Frustum Culling） | 减少 20-40% 的排序量 |
+| 降低高斯球数量（剪枝） | 数量砍半，帧率接近翻倍 |
+| 使用 `.ksplat` 格式 | 加载速度提升 5-10 倍 |
+| WebGPU Compute Shader 排序 | GPU 排序比 CPU 快 3-5 倍 |
+
+## 五、前端可用工具库
+
+| 库 | 特点 | 适用场景 |
+|----|------|----------|
+| **PlayCanvas Engine**（推荐） | 引擎级原生支持 3DGS，WebGPU 优先，配套 SuperSplat 编辑器 | 生产级项目首选 |
+| `@mkkellogg/gaussian-splats-3d` | 基于 Three.js，API 友好，GitHub 社区活跃 | 已有 Three.js 项目快速集成 |
+| Luma AI WebGL Component | `<luma-ai-viewer>` Web Component，零代码 | 快速原型验证 |
+
+## 六、PlayCanvas 与 3DGS 的深度绑定（重点推荐）
+
+PlayCanvas 是目前在 3DGS 领域投入最深的 Web 3D 引擎，形成了从**编辑 → 渲染 → 发布**的完整闭环。
+
+### 6.1 SuperSplat —— 浏览器端 3DGS 编辑器
+
+[SuperSplat](https://playcanvas.com/supersplat/editor) 是 PlayCanvas 开源（MIT 协议）的 3DGS 编辑器，完全在浏览器中运行：
+
+**核心功能**：
+- 导入 `.ply`、压缩 `.ply`、`.sog` 格式
+- 可视化选择、隐藏、删除飘散噪点高斯球
+- 裁剪、重定位、旋转场景
+- 导出优化后的压缩格式
+- **SuperSplat 2.0（2025.02）**：支持相机飞行动画、时间序列回放，可一键发布到 SuperSplat Gallery
+
+**在电商中的价值**：拍照重建后的原始模型往往有背景噪点、底座穿帮等问题，SuperSplat 可以直接在浏览器里精修，**不需要安装任何本地软件**。
+
+### 6.2 PlayCanvas Engine 原生 GSplatComponent
+
+PlayCanvas 引擎内置了 `GSplatComponent`，将 3DGS 作为一等公民支持：
+
+```javascript
+// PlayCanvas 引擎加载和渲染 3DGS
+const splatEntity = new pc.Entity('product');
+
+// 添加 GSplat 组件，绑定已加载的 splat 资源
+splatEntity.addComponent('gsplat', {
+    asset: splatAsset  // 支持 .ply / .sog / .meta.json
+});
+
+// 设置位置和朝向
+splatEntity.setPosition(0, -0.7, 0);
+splatEntity.setEulerAngles(0, 0, 180);
+
+// 添加到场景
+app.root.addChild(splatEntity);
+```
+
+**关键特性**：
+
+| 特性 | 说明 |
+|------|------|
+| Unified Rendering | 多个 Splat 场景全局深度排序，解决多物体叠加穿透问题 |
+| LOD Streaming | 渐进式流式加载，先看到低精度版本，逐步加载完整版 |
+| WebGPU 加速 | GPU Compute Shader 排序，性能远超 WebGL 方案 |
+| 自定义 Shader | 通过 `setWorkBufferModifier` 注入 GLSL/WGSL，控制高斯球的位置、颜色、缩放 |
+
+### 6.3 自定义 Shader 能力
+
+PlayCanvas 允许通过 Shader 实时修改高斯球属性，这在电商场景中非常有用（如高亮、变色、动画）：
+
+```glsl
+// 自定义 Shader：修改高斯球颜色和位置
+void modifySplatCenter(inout vec3 center) {
+    // 例如：添加浮动动画
+    center.y += sin(uTime + center.x * 2.0) * 0.02;
+}
+
+void modifySplatColor(vec3 center, inout vec4 color) {
+    // 例如：选中商品时高亮
+    if (uHighlight > 0.0) {
+        color.rgb = mix(color.rgb, vec3(1.0, 0.9, 0.5), 0.3);
+    }
+}
+```
+
+### 6.4 PlayCanvas 全链路工作流
+
+```
+拍照采集 → COLMAP/Polycam 重建 → 原始 .ply
+     ↓
+SuperSplat 编辑（裁剪/清理/压缩）→ 优化后 .ply / .sog
+     ↓
+PlayCanvas Engine（GSplatComponent）→ 浏览器实时渲染
+     ↓
+SuperSplat 发布 → 一键生成可嵌入的 3D 查看页面
+```
+
+### 6.5 为什么推荐 PlayCanvas
+
+| 对比维度 | PlayCanvas | Three.js + gaussian-splats-3d |
+|----------|------------|-------------------------------|
+| 3DGS 支持层级 | 引擎原生组件 | 第三方库 |
+| 排序方案 | WebGPU Compute Shader（GPU 排序） | Web Worker + CPU 排序 |
+| 编辑工具 | SuperSplat（官方配套） | 无，需外部工具 |
+| LOD 流式加载 | 内置支持 | 需自行实现 |
+| 多 Splat 场景 | Unified Rendering 全局排序 | 各 Splat 独立排序，可能穿透 |
+| 自定义 Shader | 原生 API 支持 | 需 fork 修改 |
+| 发布部署 | 一键发布到 Gallery | 自行部署 |
+
+## 七、值得关注的技术进展
+
+- **Compact 3DGS**：向量量化压缩，进一步缩小文件体积
+- **Gaussian Opacity Fields**：支持从高斯球中提取 Mesh
+- **4DGS / Dynamic 3DGS**：支持动态场景
+- **Gaussian Splatting + NeRF 混合方案**：结合两者优势
+- **glTF 标准化**：Khronos 正在推进将 3DGS 集成到 glTF 生态
+- **生成式 AI + 3DGS**：从文本/图片直接生成 3DGS 模型（如 Marble、Echo Spatial AI）
+
+    </script>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-2">
+    <span class="section-label" style="background: rgba(0,212,255,0.15); color: var(--accent-blue);">电商落地</span>
+    <h2>第二部分：3DGS 在电商中的落地方案</h2>
+    <p>从采集、重建、压缩到前端集成，给出电商 3D 交互的可执行路线。</p>
+    <div class="md-content" id="md-part2"></div>
+    <script type="text/markdown" id="md-part2-src">
+## 一、电商应用场景
+
+### 1.1 3D 商品展示
+
+**核心价值**：替代传统 3D 建模流程，拍照即可生成商品 3D 模型，大幅降低成本。
+
+**适合品类**：
+- 鞋靴、箱包：硬质材质，重建效果好
+- 家具、家居饰品：静态物体，尺寸适中
+- 珠宝配饰：高光细节丰富，视角变化的真实感是卖点
+- 3C 数码：外观精致，消费者注重细节
+
+**不太适合的品类**：
+- 服装（布料形变、穿着效果无法很好呈现）
+- 食品生鲜（保质期内外观变化大）
+
+### 1.2 场景化展示
+
+- **家具 + 室内场景**：消费者可在还原的真实房间中浏览家具摆放效果
+- **线下门店数字化**：将线下旗舰店/体验店用 3DGS 重建，线上虚拟逛店
+
+### 1.3 商品详情页增强
+
+在传统图片/视频基础上，增加 3D 交互查看入口，用户可自由旋转、缩放商品，提升转化率。
+
+---
+
+## 二、完整落地流程
+
+### 2.1 采集阶段
+
+```
+手机/相机绕物体拍 100-200 张照片
+     ↓
+关键要求：
+  - 照片重叠率 60% 以上
+  - 光照均匀，避免强阴影
+  - 避免纯反光/纯白/纯透明材质
+  - 覆盖所有角度（包括顶部和底部）
+```
+
+**大规模采集方案**：可搭建简易摄影棚 + 转台，标准化拍摄流程，降低人工成本。
+
+### 2.2 重建阶段
+
+```
+照片 → COLMAP（SfM 稀疏重建） → 官方 3DGS 训练 → 原始 .ply 文件
+```
+
+| 方案 | 要求 | 耗时 | 成本 |
+|------|------|------|------|
+| 本地训练（官方仓库） | NVIDIA GPU | 小场景 30 分钟，大场景 2-4 小时 | 硬件成本 |
+| 云端服务（Polycam / Luma AI） | 上传照片即可 | 10-30 分钟 | 按次/按月付费 |
+| 自建训练平台 | GPU 集群 | 可并行批量处理 | 基础设施投入 |
+
+### 2.3 后处理阶段
+
+**清理**：使用 `SuperSplat` 等工具可视化清理飘散噪点高斯球
+
+**压缩**：
+- `.ply` → `.ksplat`：约 12:1 压缩比
+- 典型商品模型压缩后约 5-20MB
+
+**质量检查**：人工抽检重建质量，确保无明显伪影
+
+### 2.4 前端集成
+
+```
+┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
+│  CDN / OSS   │ →  │  前端 Viewer     │ →  │  商品详情页   │
+│ 存储 .ply/.sog│    │ PlayCanvas 渲染  │    │  嵌入 3D 组件 │
+└──────────────┘    └─────────────────┘    └──────────────┘
+```
+
+**关键技术决策**：
+
+| 决策点 | 推荐方案 |
+|--------|----------|
+| 渲染引擎 | PlayCanvas Engine（原生 GSplatComponent + WebGPU） |
+| 编辑工具 | SuperSplat（浏览器端清理/压缩/发布） |
+| 文件存储 | CDN + OSS，就近分发 |
+| 加载策略 | 渐进式加载（先加载低精度版本，后台加载完整版） |
+| 移动端适配 | 高斯球数量控制在 30 万以下，降采样渲染 |
+| 降级方案 | 不支持 WebGL 2.0 的设备回退到图片/视频 |
+
+### 2.5 流式加载策略
+
+```
+用户打开页面
+     ↓
+加载低精度版本（稀疏高斯球，~1MB）→ 快速呈现大致效果
+     ↓
+后台继续加载完整版（~10MB）→ 平滑过渡到高质量渲染
+```
+
+类似渐进式 JPEG 的体验，用户无需等待完整加载即可交互。
+
+---
+
+## 三、电商场景下的性能优化策略
+
+| 场景 | 策略 |
+|------|------|
+| 首屏加载 | 首帧用预渲染图片占位，3D 加载完成后切换 |
+| 低端设备 | 动态降低高斯球数量，降低渲染分辨率 |
+| 流量控制 | 用户主动点击"查看 3D"才加载，避免自动加载浪费带宽 |
+| 内存管理 | 离开视口时释放 GPU 资源，切换商品时复用 Viewer 实例 |
+| 移动端 | iOS Safari 暂不支持 WebGPU，需 WebGL 回退方案 |
+
+---
+
+## 四、落地挑战与应对
+
+| 挑战 | 应对方案 |
+|------|----------|
+| 大规模商品采集成本 | 标准化摄影棚 + 转台，批量自动化训练 |
+| 文件体积影响加载速度 | `.ksplat` 压缩 + CDN 加速 + 渐进式加载 |
+| 移动端性能不足 | 分级渲染 + 低端设备降级为图片/视频 |
+| 部分品类效果差 | 明确适用品类白名单，不强推不适合的场景 |
+| 动态展示需求 | 短期用多角度静态 3DGS，长期关注 4DGS 进展 |
+| ROI 衡量 | A/B 测试对比 3D 展示 vs 传统图片的转化率差异 |
+
+---
+
+## 五、分阶段落地建议
+
+### Phase 1：技术验证（1-2 周）
+
+- 选择 1-2 个典型商品，完成拍照 → 重建 → 前端展示的全流程
+- 验证压缩比、加载速度、渲染帧率等关键指标
+- 确定渲染库选型
+
+### Phase 2：小规模试点（2-4 周）
+
+- 选择一个品类（如家具），完成 20-50 个商品的 3DGS 制作
+- 在商品详情页上线 3D 查看功能
+- 收集用户行为数据（停留时长、交互率、转化率）
+
+### Phase 3：规模化生产（1-3 个月）
+
+- 搭建标准化采集和训练流水线
+- 建设内部 3D 资产管理平台
+- 扩展到更多品类
+
+### Phase 4：体验升级（持续迭代）
+
+- AR 试穿/试摆（结合 WebXR）
+- 多商品场景组合展示
+- 关注 4DGS 等新技术的落地可能性
+
+---
+
+## 六、总结
+
+3DGS 为电商 3D 化提供了一条**低成本、高质量、可实时渲染**的技术路径。相比传统 3D 建模，它将商品 3D 展示的门槛从"需要专业建模团队"降低到了"拍照即可"。
+
+核心建议：
+
+1. **从适合的品类切入**：优先选择硬质、静态、消费者关注外观细节的商品
+2. **渐进式上线**：先用低精度版本保证体验，再用高精度版本提升质量
+3. **做好降级方案**：确保不支持 WebGL 的设备仍有良好体验
+4. **用数据说话**：通过 A/B 测试验证 3D 展示对转化率的实际影响
+
+---
+---
+
+    </script>
+</section>
+
+<hr class="divider">
+
+<section class="section center" id="section-3">
+    <span class="section-label" style="background: rgba(183,148,246,0.15); color: var(--accent-purple);">广告投放</span>
+    <h2>第三部分：3DGS 在广告投放领域的应用</h2>
+    <p>解释为什么广告需要 3DGS，并给出从 MVP 到规模化素材生产的分阶段路线。</p>
+    <div class="md-content" id="md-part3"></div>
+    <script type="text/markdown" id="md-part3-src">
+## 一、为什么广告行业需要 3DGS
+
+传统数字广告的创意形式正在触及天花板：
+
+| 当前形式 | 痛点 |
+|----------|------|
+| 静态图片广告 | 信息密度低，难以展示商品全貌，用户注意力停留短 |
+| 视频广告 | 制作成本高，视角固定，用户被动观看 |
+| 传统 3D 广告 | 需要专业建模，制作周期长，与实物存在差距 |
+| AR 试穿/试戴广告 | 依赖 App，技术门槛高，覆盖率有限 |
+
+**3DGS 的差异化价值**：照片级真实感 + 实时交互 + 浏览器可用 + 制作成本低。
+
+---
+
+## 二、广告投放场景
+
+### 2.1 互动商品广告（信息流/落地页）
+
+**场景**：用户在信息流中看到广告，点击进入落地页后可以 360 度旋转查看商品。
+
+```
+传统链路：广告图片 → 点击 → 商品详情页 → 看更多图片 → 决策
+3DGS 链路：广告入口 → 点击 → 3D 交互体验 → 即时决策
+```
+
+**优势**：
+- 用户停留时长显著提升（从被动浏览变为主动探索）
+- 减少"图片与实物不符"的退货率
+- 差异化的广告体验提升品牌记忆度
+
+**适用平台**：品牌官网落地页、小程序广告、H5 投放页
+
+### 2.2 场景化种草广告
+
+**场景**：将商品放在真实场景中展示（如将一款沙发放在已重建的客厅里），用户可自由走动浏览。
+
+**制作流程**：
+1. 用 3DGS 重建一个精美的样板间场景
+2. 在场景中的关键位置放置商品标签/热点
+3. 用户点击热点查看商品详情、价格、购买入口
+
+**适用场景**：家居、家装、房产楼盘
+
+### 2.3 品牌空间广告
+
+**场景**：品牌将线下旗舰店、展厅、快闪店用 3DGS 重建为线上虚拟空间，作为品牌广告的承接页。
+
+```
+线下快闪店 → 3DGS 扫描重建 → 线上虚拟店 → 广告投放引流
+```
+
+**案例方向**：
+- 奢侈品牌虚拟展厅（用户线上逛店，点击商品下单）
+- 汽车品牌展厅（720 度浏览车内外，替代传统 VR 全景）
+- 文旅景区/博物馆导览广告
+
+### 2.4 动态创意广告（DCO + 3DGS）
+
+**场景**：将 3DGS 与动态创意优化（DCO）结合，根据用户画像动态调整 3D 展示内容。
+
+```
+用户 A（偏好红色）→ 展示红色款商品 3DGS
+用户 B（偏好简约）→ 展示白色款商品 3DGS + 简约场景
+```
+
+**技术要点**：
+- 利用 PlayCanvas 的自定义 Shader 能力，动态修改商品颜色/材质
+- 预生成多个场景的 3DGS，按人群标签动态加载
+- 配合 A/B 测试框架优化创意组合
+
+### 2.5 短视频/社交媒体广告素材
+
+**场景**：用 3DGS 模型生成高质量的广告视频素材，替代传统拍摄。
+
+**优势**：
+- 一次重建，无限角度输出视频
+- 通过 SuperSplat 的相机飞行动画功能，快速生成环绕展示视频
+- 降低视频广告素材的拍摄和后期成本
+
+---
+
+## 三、广告投放链路中的技术落地
+
+### 3.1 架构设计
+
+```
+┌────────────┐     ┌──────────────┐     ┌───────────────┐
+│ 广告投放平台 │ →   │  广告落地页    │ →   │  3DGS Viewer  │
+│ (DSP/ADX)  │     │  (H5/小程序)  │     │  (PlayCanvas) │
+└────────────┘     └──────────────┘     └───────────────┘
+                          ↓
+                   ┌──────────────┐
+                   │  埋点 & 回传  │
+                   │ 停留/交互/转化 │
+                   └──────────────┘
+```
+
+### 3.2 广告场景下的特殊性能要求
+
+广告场景对性能的要求比普通页面更苛刻：
+
+| 指标 | 要求 | 应对方案 |
+|------|------|----------|
+| 首屏加载 | < 2 秒（否则用户流失） | 首帧预渲染图片 + 后台异步加载 3DGS |
+| 文件体积 | < 5MB（移动端流量敏感） | 高压缩比格式 + CDN 全球加速 |
+| 帧率 | > 30fps（交互流畅感） | 控制高斯球数量 + 分级渲染 |
+| 兼容性 | 覆盖 95%+ 设备 | WebGL 2.0 为主 + WebGPU 增强 + 图片降级 |
+| 电量/发热 | 不能导致手机过热 | 限制最大帧率 + 静止时降频渲染 |
+
+### 3.3 效果衡量
+
+3DGS 广告需要新增的效果指标：
+
+| 指标 | 说明 |
+|------|------|
+| 3D 交互率 | 用户是否与 3D 模型产生交互（旋转/缩放） |
+| 平均交互时长 | 用户在 3D 查看器中的停留时间 |
+| 交互后转化率 | 与 3D 模型交互后的下单/加购转化率 |
+| 3D 加载成功率 | 3DGS 成功加载渲染的比例（影响实际曝光） |
+| 降级比例 | 回退到图片展示的设备占比 |
+
+---
+
+## 四、广告领域落地路线图
+
+### Phase 1：单品互动广告 MVP
+
+- 选择 1-2 个高客单价商品（如 3C / 家居）
+- 在品牌官网落地页嵌入 3D 查看功能
+- 对比传统图片落地页的转化率差异
+
+### Phase 2：场景化种草
+
+- 重建 2-3 个样板间/展厅场景
+- 在场景中嵌入商品热点和购买入口
+- 投放到小程序/H5 广告渠道
+
+### Phase 3：规模化素材生产
+
+- 建设 3DGS 广告素材工厂（标准化采集 → 自动训练 → 压缩发布）
+- 接入 DCO 平台，支持动态创意组合
+- 建设 3D 素材效果分析看板
+
+### Phase 4：AI + 3DGS 广告
+
+- 利用生成式 AI 从文本/图片直接生成 3DGS 广告素材
+- 自动化 A/B 测试：AI 生成多版本 3D 创意，自动优选
+- 结合 AR/WebXR 实现沉浸式广告体验
+    </script>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>由 `3DGS.md` 自动生成 · 深色主题与动画由模板提供</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+// Initialize Lucide icons
+lucide.createIcons();
+
+// Render markdown (marked) into each part container
+function escapeHtml(str) {
+    return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+const renderer = new marked.Renderer();
+renderer.code = function(code, infostring, escaped) {
+    const lang = (infostring || '').trim();
+    // marked 传入的 code 可能已经转义，也可能是原始文本
+    const html = escaped ? code : escapeHtml(code);
+    const langBlock = lang ? '<div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.6rem;">' + lang + '</div>' : '';
+    // 用 <pre><code> 包起来，避免浏览器默认样式影响换行/可读性
+    return '<div class="code-block">' + langBlock + '<pre><code>' + html + '</code></pre></div>';
+};
+// 有些 marked 版本会走 fences；兜底绑定到同一个渲染器
+renderer.fences = renderer.code;
+renderer.blockquote = function(quote) {
+    return '<blockquote>' + quote + '</blockquote>';
+};
+renderer.table = function(header, body) {
+    return '<div class="md-table-wrap"><table>' + header + body + '</table></div>';
+};
+
+function renderPart(partId) {
+    const src = document.getElementById(partId + '-src');
+    const dest = document.getElementById(partId);
+    if (!src || !dest) return;
+    const md = src.textContent || '';
+    dest.innerHTML = marked.parse(md, {
+        renderer,
+        // GFM 模式负责表格等扩展语法解析
+        gfm: true,
+        breaks: false
+    });
+}
+
+renderPart('md-part1');
+renderPart('md-part2');
+renderPart('md-part3');
+</script>
+
+</body>
+</html>

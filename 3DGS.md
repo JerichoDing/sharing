@@ -131,29 +131,112 @@ WebGPU 可以在 GPU 上直接做排序（Compute Shader），省去 CPU 和 GPU
 
 | 库 | 特点 | 适用场景 |
 |----|------|----------|
-| `@mkkellogg/gaussian-splats-3d` | 基于 Three.js，API 友好，GitHub 最活跃 | 已有 Three.js 项目集成 |
-| `gsplat.js`（PlayCanvas 出品） | 更轻量，WebGPU 优先 | 性能敏感场景 |
+| **PlayCanvas Engine**（推荐） | 引擎级原生支持 3DGS，WebGPU 优先，配套 SuperSplat 编辑器 | 生产级项目首选 |
+| `@mkkellogg/gaussian-splats-3d` | 基于 Three.js，API 友好，GitHub 社区活跃 | 已有 Three.js 项目快速集成 |
 | Luma AI WebGL Component | `<luma-ai-viewer>` Web Component，零代码 | 快速原型验证 |
-
-快速上手示例（20 行代码即可跑起来）：
-
-```js
-import { Viewer } from '@mkkellogg/gaussian-splats-3d';
-const viewer = new Viewer({
-  cameraUp: [0, -1, 0],
-  initialCameraPos: [0, 1, 3]
-});
-viewer.addSplatScene('./scene.ksplat').then(() => viewer.start());
-```
 
 ---
 
-## 六、值得关注的技术进展
+## 六、PlayCanvas 与 3DGS 的深度绑定（重点推荐）
+
+PlayCanvas 是目前在 3DGS 领域投入最深的 Web 3D 引擎，形成了从**编辑 → 渲染 → 发布**的完整闭环。
+
+### 6.1 SuperSplat —— 浏览器端 3DGS 编辑器
+
+[SuperSplat](https://playcanvas.com/supersplat/editor) 是 PlayCanvas 开源（MIT 协议）的 3DGS 编辑器，完全在浏览器中运行：
+
+**核心功能**：
+- 导入 `.ply`、压缩 `.ply`、`.sog` 格式
+- 可视化选择、隐藏、删除飘散噪点高斯球
+- 裁剪、重定位、旋转场景
+- 导出优化后的压缩格式
+- **SuperSplat 2.0（2025.02）**：支持相机飞行动画、时间序列回放，可一键发布到 SuperSplat Gallery
+
+**在电商中的价值**：拍照重建后的原始模型往往有背景噪点、底座穿帮等问题，SuperSplat 可以直接在浏览器里精修，**不需要安装任何本地软件**。
+
+### 6.2 PlayCanvas Engine 原生 GSplatComponent
+
+PlayCanvas 引擎内置了 `GSplatComponent`，将 3DGS 作为一等公民支持：
+
+```javascript
+// PlayCanvas 引擎加载和渲染 3DGS
+const splatEntity = new pc.Entity('product');
+
+// 添加 GSplat 组件，绑定已加载的 splat 资源
+splatEntity.addComponent('gsplat', {
+    asset: splatAsset  // 支持 .ply / .sog / .meta.json
+});
+
+// 设置位置和朝向
+splatEntity.setPosition(0, -0.7, 0);
+splatEntity.setEulerAngles(0, 0, 180);
+
+// 添加到场景
+app.root.addChild(splatEntity);
+```
+
+**关键特性**：
+
+| 特性 | 说明 |
+|------|------|
+| Unified Rendering | 多个 Splat 场景全局深度排序，解决多物体叠加穿透问题 |
+| LOD Streaming | 渐进式流式加载，先看到低精度版本，逐步加载完整版 |
+| WebGPU 加速 | GPU Compute Shader 排序，性能远超 WebGL 方案 |
+| 自定义 Shader | 通过 `setWorkBufferModifier` 注入 GLSL/WGSL，控制高斯球的位置、颜色、缩放 |
+
+### 6.3 自定义 Shader 能力
+
+PlayCanvas 允许通过 Shader 实时修改高斯球属性，这在电商场景中非常有用（如高亮、变色、动画）：
+
+```glsl
+// 自定义 Shader：修改高斯球颜色和位置
+void modifySplatCenter(inout vec3 center) {
+    // 例如：添加浮动动画
+    center.y += sin(uTime + center.x * 2.0) * 0.02;
+}
+
+void modifySplatColor(vec3 center, inout vec4 color) {
+    // 例如：选中商品时高亮
+    if (uHighlight > 0.0) {
+        color.rgb = mix(color.rgb, vec3(1.0, 0.9, 0.5), 0.3);
+    }
+}
+```
+
+### 6.4 PlayCanvas 全链路工作流
+
+```
+拍照采集 → COLMAP/Polycam 重建 → 原始 .ply
+     ↓
+SuperSplat 编辑（裁剪/清理/压缩）→ 优化后 .ply / .sog
+     ↓
+PlayCanvas Engine（GSplatComponent）→ 浏览器实时渲染
+     ↓
+SuperSplat 发布 → 一键生成可嵌入的 3D 查看页面
+```
+
+### 6.5 为什么推荐 PlayCanvas
+
+| 对比维度 | PlayCanvas | Three.js + gaussian-splats-3d |
+|----------|------------|-------------------------------|
+| 3DGS 支持层级 | 引擎原生组件 | 第三方库 |
+| 排序方案 | WebGPU Compute Shader（GPU 排序） | Web Worker + CPU 排序 |
+| 编辑工具 | SuperSplat（官方配套） | 无，需外部工具 |
+| LOD 流式加载 | 内置支持 | 需自行实现 |
+| 多 Splat 场景 | Unified Rendering 全局排序 | 各 Splat 独立排序，可能穿透 |
+| 自定义 Shader | 原生 API 支持 | 需 fork 修改 |
+| 发布部署 | 一键发布到 Gallery | 自行部署 |
+
+---
+
+## 七、值得关注的技术进展
 
 - **Compact 3DGS**：向量量化压缩，进一步缩小文件体积
 - **Gaussian Opacity Fields**：支持从高斯球中提取 Mesh
 - **4DGS / Dynamic 3DGS**：支持动态场景
 - **Gaussian Splatting + NeRF 混合方案**：结合两者优势
+- **glTF 标准化**：Khronos 正在推进将 3DGS 集成到 glTF 生态
+- **生成式 AI + 3DGS**：从文本/图片直接生成 3DGS 模型（如 Marble、Echo Spatial AI）
 
 ---
 
@@ -163,11 +246,12 @@ viewer.addSplatScene('./scene.ksplat').then(() => viewer.start());
 
 ## 一、电商应用场景
 
-### 1.1 3D 商品展示
+### 1.1 3D 商品展示  https://3d.explorerglobal.cn/model/8lywvr2m
 
 **核心价值**：替代传统 3D 建模流程，拍照即可生成商品 3D 模型，大幅降低成本。
 
 **适合品类**：
+
 - 鞋靴、箱包：硬质材质，重建效果好
 - 家具、家居饰品：静态物体，尺寸适中
 - 珠宝配饰：高光细节丰富，视角变化的真实感是卖点
@@ -229,17 +313,18 @@ viewer.addSplatScene('./scene.ksplat').then(() => viewer.start());
 ### 2.4 前端集成
 
 ```
-┌──────────────┐    ┌───────────────┐    ┌──────────────┐
-│  CDN / OSS   │ →  │  前端 Viewer   │ →  │  商品详情页   │
-│ 存储 .ksplat │    │ Three.js 渲染  │    │  嵌入 3D 组件 │
-└──────────────┘    └───────────────┘    └──────────────┘
+┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
+│  CDN / OSS   │ →  │  前端 Viewer     │ →  │  商品详情页   │
+│ 存储 .ply/.sog│    │ PlayCanvas 渲染  │    │  嵌入 3D 组件 │
+└──────────────┘    └─────────────────┘    └──────────────┘
 ```
 
 **关键技术决策**：
 
 | 决策点 | 推荐方案 |
 |--------|----------|
-| 渲染库 | `@mkkellogg/gaussian-splats-3d`（Three.js 生态） |
+| 渲染引擎 | PlayCanvas Engine（原生 GSplatComponent + WebGPU） |
+| 编辑工具 | SuperSplat（浏览器端清理/压缩/发布） |
 | 文件存储 | CDN + OSS，就近分发 |
 | 加载策略 | 渐进式加载（先加载低精度版本，后台加载完整版） |
 | 移动端适配 | 高斯球数量控制在 30 万以下，降采样渲染 |
@@ -322,3 +407,159 @@ viewer.addSplatScene('./scene.ksplat').then(() => viewer.start());
 2. **渐进式上线**：先用低精度版本保证体验，再用高精度版本提升质量
 3. **做好降级方案**：确保不支持 WebGL 的设备仍有良好体验
 4. **用数据说话**：通过 A/B 测试验证 3D 展示对转化率的实际影响
+
+---
+
+---
+
+# 第三部分：3DGS 在广告投放领域的应用
+
+## 一、为什么广告行业需要 3DGS
+
+传统数字广告的创意形式正在触及天花板：
+
+| 当前形式 | 痛点 |
+|----------|------|
+| 静态图片广告 | 信息密度低，难以展示商品全貌，用户注意力停留短 |
+| 视频广告 | 制作成本高，视角固定，用户被动观看 |
+| 传统 3D 广告 | 需要专业建模，制作周期长，与实物存在差距 |
+| AR 试穿/试戴广告 | 依赖 App，技术门槛高，覆盖率有限 |
+
+**3DGS 的差异化价值**：照片级真实感 + 实时交互 + 浏览器可用 + 制作成本低。
+
+---
+
+## 二、广告投放场景
+
+### 2.1 互动商品广告（信息流/落地页）
+
+**场景**：用户在信息流中看到广告，点击进入落地页后可以 360 度旋转查看商品。
+
+```
+传统链路：广告图片 → 点击 → 商品详情页 → 看更多图片 → 决策
+3DGS 链路：广告入口 → 点击 → 3D 交互体验 → 即时决策
+```
+
+**优势**：
+- 用户停留时长显著提升（从被动浏览变为主动探索）
+- 减少"图片与实物不符"的退货率
+- 差异化的广告体验提升品牌记忆度
+
+**适用平台**：品牌官网落地页、小程序广告、H5 投放页
+
+### 2.2 场景化种草广告
+
+**场景**：将商品放在真实场景中展示（如将一款沙发放在已重建的客厅里），用户可自由走动浏览。
+
+**制作流程**：
+1. 用 3DGS 重建一个精美的样板间场景
+2. 在场景中的关键位置放置商品标签/热点
+3. 用户点击热点查看商品详情、价格、购买入口
+
+**适用场景**：家居、家装、房产楼盘
+
+### 2.3 品牌空间广告
+
+**场景**：品牌将线下旗舰店、展厅、快闪店用 3DGS 重建为线上虚拟空间，作为品牌广告的承接页。
+
+```
+线下快闪店 → 3DGS 扫描重建 → 线上虚拟店 → 广告投放引流
+```
+
+**案例方向**：
+- 奢侈品牌虚拟展厅（用户线上逛店，点击商品下单）
+- 汽车品牌展厅（720 度浏览车内外，替代传统 VR 全景）
+- 文旅景区/博物馆导览广告
+
+### 2.4 动态创意广告（DCO + 3DGS）
+
+**场景**：将 3DGS 与动态创意优化（DCO）结合，根据用户画像动态调整 3D 展示内容。
+
+```
+用户 A（偏好红色）→ 展示红色款商品 3DGS
+用户 B（偏好简约）→ 展示白色款商品 3DGS + 简约场景
+```
+
+**技术要点**：
+- 利用 PlayCanvas 的自定义 Shader 能力，动态修改商品颜色/材质
+- 预生成多个场景的 3DGS，按人群标签动态加载
+- 配合 A/B 测试框架优化创意组合
+
+### 2.5 短视频/社交媒体广告素材
+
+**场景**：用 3DGS 模型生成高质量的广告视频素材，替代传统拍摄。
+
+**优势**：
+- 一次重建，无限角度输出视频
+- 通过 SuperSplat 的相机飞行动画功能，快速生成环绕展示视频
+- 降低视频广告素材的拍摄和后期成本
+
+---
+
+## 三、广告投放链路中的技术落地
+
+### 3.1 架构设计
+
+```
+┌────────────┐     ┌──────────────┐     ┌───────────────┐
+│ 广告投放平台 │ →   │  广告落地页    │ →   │  3DGS Viewer  │
+│ (DSP/ADX)  │     │  (H5/小程序)  │     │  (PlayCanvas) │
+└────────────┘     └──────────────┘     └───────────────┘
+                          ↓
+                   ┌──────────────┐
+                   │  埋点 & 回传  │
+                   │ 停留/交互/转化 │
+                   └──────────────┘
+```
+
+### 3.2 广告场景下的特殊性能要求
+
+广告场景对性能的要求比普通页面更苛刻：
+
+| 指标 | 要求 | 应对方案 |
+|------|------|----------|
+| 首屏加载 | < 2 秒（否则用户流失） | 首帧预渲染图片 + 后台异步加载 3DGS |
+| 文件体积 | < 5MB（移动端流量敏感） | 高压缩比格式 + CDN 全球加速 |
+| 帧率 | > 30fps（交互流畅感） | 控制高斯球数量 + 分级渲染 |
+| 兼容性 | 覆盖 95%+ 设备 | WebGL 2.0 为主 + WebGPU 增强 + 图片降级 |
+| 电量/发热 | 不能导致手机过热 | 限制最大帧率 + 静止时降频渲染 |
+
+### 3.3 效果衡量
+
+3DGS 广告需要新增的效果指标：
+
+| 指标 | 说明 |
+|------|------|
+| 3D 交互率 | 用户是否与 3D 模型产生交互（旋转/缩放） |
+| 平均交互时长 | 用户在 3D 查看器中的停留时间 |
+| 交互后转化率 | 与 3D 模型交互后的下单/加购转化率 |
+| 3D 加载成功率 | 3DGS 成功加载渲染的比例（影响实际曝光） |
+| 降级比例 | 回退到图片展示的设备占比 |
+
+---
+
+## 四、广告领域落地路线图
+
+### Phase 1：单品互动广告 MVP
+
+- 选择 1-2 个高客单价商品（如 3C / 家居）
+- 在品牌官网落地页嵌入 3D 查看功能
+- 对比传统图片落地页的转化率差异
+
+### Phase 2：场景化种草
+
+- 重建 2-3 个样板间/展厅场景
+- 在场景中嵌入商品热点和购买入口
+- 投放到小程序/H5 广告渠道
+
+### Phase 3：规模化素材生产
+
+- 建设 3DGS 广告素材工厂（标准化采集 → 自动训练 → 压缩发布）
+- 接入 DCO 平台，支持动态创意组合
+- 建设 3D 素材效果分析看板
+
+### Phase 4：AI + 3DGS 广告
+
+- 利用生成式 AI 从文本/图片直接生成 3DGS 广告素材
+- 自动化 A/B 测试：AI 生成多版本 3D 创意，自动优选
+- 结合 AR/WebXR 实现沉浸式广告体验

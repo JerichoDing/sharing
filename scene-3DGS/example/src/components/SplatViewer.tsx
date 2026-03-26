@@ -35,6 +35,7 @@ export type SplatTransform = {
 export type SplatViewerProps = {
   src: string;
   initialCameraPosition?: Vec3;
+  initialCameraDirection?: Vec3;
   splatTransform?: SplatTransform;
   highQualitySH?: boolean;
   hintText?: string;
@@ -42,6 +43,7 @@ export type SplatViewerProps = {
   subtitle?: string;
   sceneInfo?: ViewerInfoItem[];
   operationGroups?: ViewerControlGroup[];
+  onCameraUpdate?: (info: CameraInfo) => void;
 };
 
 type SceneStatus = {
@@ -88,11 +90,49 @@ export type CameraInfo = {
 type SplatSceneProps = {
   src: string;
   initialCameraPosition: Vec3;
+  initialCameraDirection?: Vec3;
   transform: Required<SplatTransform>;
   highQualitySH: boolean;
   onStatusChange: (status: SceneStatus) => void;
   onCameraUpdate?: (info: CameraInfo) => void;
 };
+
+function CameraInitialPose({
+  initialCameraPosition,
+  initialCameraDirection,
+}: {
+  initialCameraPosition: Vec3;
+  initialCameraDirection?: Vec3;
+}) {
+  const app = useApp();
+  const appliedRef = useRef(false);
+
+  useAppEvent(
+    'update',
+    useCallback(() => {
+      if (appliedRef.current || !app?.root) return;
+      const cameraEntity = app.root.findByName('Camera');
+      if (!cameraEntity) return;
+
+      cameraEntity.setPosition(
+        initialCameraPosition[0],
+        initialCameraPosition[1],
+        initialCameraPosition[2],
+      );
+
+      if (initialCameraDirection) {
+        const targetX = initialCameraPosition[0] + initialCameraDirection[0];
+        const targetY = initialCameraPosition[1] + initialCameraDirection[1];
+        const targetZ = initialCameraPosition[2] + initialCameraDirection[2];
+        cameraEntity.lookAt(targetX, targetY, targetZ);
+      }
+
+      appliedRef.current = true;
+    }, [app, initialCameraDirection, initialCameraPosition]),
+  );
+
+  return null;
+}
 
 function CameraInfoReporter({ onCameraUpdate }: { onCameraUpdate: (info: CameraInfo) => void }) {
   const app = useApp();
@@ -126,6 +166,7 @@ function CameraInfoReporter({ onCameraUpdate }: { onCameraUpdate: (info: CameraI
 function SplatScene({
   src,
   initialCameraPosition,
+  initialCameraDirection,
   transform,
   highQualitySH,
   onStatusChange,
@@ -159,6 +200,10 @@ function SplatScene({
       <Entity name="Camera" position={initialCameraPosition}>
         <CameraEntity />
       </Entity>
+      <CameraInitialPose
+        initialCameraPosition={initialCameraPosition}
+        initialCameraDirection={initialCameraDirection}
+      />
 
       <Entity
         name="Splat"
@@ -197,6 +242,7 @@ function GSplatEntity({ asset, highQualitySH }: GSplatEntityProps) {
 export function SplatViewer({
   src,
   initialCameraPosition = [10, -3000, 2500],
+  initialCameraDirection,
   splatTransform,
   highQualitySH = false,
   hintText = '左键旋转 / 右键平移 / 滚轮缩放',
@@ -204,6 +250,7 @@ export function SplatViewer({
   subtitle = '加载高斯泼溅资源并在浏览器中实时浏览。',
   sceneInfo = [],
   operationGroups = [],
+  onCameraUpdate,
 }: SplatViewerProps) {
   const [sceneStatus, setSceneStatus] = useState<SceneStatus>({
     loading: true,
@@ -232,29 +279,8 @@ export function SplatViewer({
     };
   }, [splatTransform]);
 
-  const statusTone = sceneStatus.error
-    ? 'error'
-    : sceneStatus.loading
-      ? 'loading'
-      : sceneStatus.empty
-        ? 'empty'
-        : 'ready';
 
-  const statusLabel = sceneStatus.error
-    ? '资源异常'
-    : sceneStatus.loading
-      ? `加载中 ${Math.round(sceneStatus.progress * 100)}%`
-      : sceneStatus.empty
-        ? '等待数据'
-        : '可交互浏览';
 
-  const statusDescription = sceneStatus.error
-    ? '检查资源路径或网络访问后重试。'
-    : sceneStatus.loading
-      ? '正在拉取并解码 splat 资源。'
-      : sceneStatus.empty
-        ? '当前场景未拿到可显示的 splat 数据。'
-        : '模型已经进入实时渲染状态。';
 
   return (
     <div className="splat-root">
@@ -267,10 +293,14 @@ export function SplatViewer({
           key={src}
           src={src}
           initialCameraPosition={initialCameraPosition}
+          initialCameraDirection={initialCameraDirection}
           transform={transform}
           highQualitySH={highQualitySH}
           onStatusChange={setSceneStatus}
-          onCameraUpdate={setCameraInfo}
+          onCameraUpdate={(info) => {
+            setCameraInfo(info);
+            onCameraUpdate?.(info);
+          }}
         />
       </Application>
 
@@ -294,39 +324,8 @@ export function SplatViewer({
           <div className="src" title={src}>
             {src}
           </div>
-          {cameraInfo && (
-            <div className="camera-info">
-              <div className="camera-info-row">
-                <span className="camera-info-label">位置</span>
-                <span className="camera-info-value">
-                  [{cameraInfo.position[0].toFixed(3)}, {cameraInfo.position[1].toFixed(3)},{' '}
-                  {cameraInfo.position[2].toFixed(3)}]
-                </span>
-              </div>
-              <div className="camera-info-row">
-                <span className="camera-info-label">朝向</span>
-                <span className="camera-info-value">
-                  [{cameraInfo.direction[0].toFixed(3)}, {cameraInfo.direction[1].toFixed(3)},{' '}
-                  {cameraInfo.direction[2].toFixed(3)}]
-                </span>
-              </div>
-            </div>
-          )}
         </div>
 
-        <div className="hud-right">
-          <div className={`status-card is-${statusTone}`}>
-            <div className="status-label">{statusLabel}</div>
-            <div className="status-description">{statusDescription}</div>
-          </div>
-          <button
-            className="btn"
-            type="button"
-            onClick={() => setShowHelp((prev) => !prev)}
-          >
-            {showHelp ? '收起操作指南' : '展开操作指南'}
-          </button>
-        </div>
       </div>
 
       {showHelp && !sceneStatus.error ? (
